@@ -3,7 +3,7 @@
 ## Pitch
 WebWhiteboard will solve all your note taking problems. WebWhiteboard is a simple, easy to use and free whiteboard web app where anyone can take notes for classes or become an artist and express your creativity.
 
-##Functionality
+## Functionality
 specific actions that users can complete in your project:
 1. Draw lines on the canvas using pencil/paintbrush
 2. Change the color of paintbrush
@@ -14,7 +14,7 @@ specific actions that users can complete in your project:
 7. Prebuilt shape where you can change the size
 8. Selection Tool
 
-##Components
+## Components
 
 Frontend: TypeScript/JS, HTML canvas or WebGL, and CSS. CSS will be utilized to make the web app look pretty and to improve the UX. HTML will be essential for getting the web app up and running but we don’t expect to be using a lot of HTML. TypeScript/JS will be what we write the bulk of our web app features in and will be used for things such as text boxes and typing capabilities as well as the eraser capabilities and different colors.
 
