@@ -31,31 +31,26 @@ We chose to separate the project into frontend and backend because it allows us 
   <img src="doc/assets/component_diagram.png" width=400 />
 </p>
 
-describe each major part and include the following for each part
-
-- Functionality.
-- Programming Language(s) used.
-- Major Libraries Used.
-- Testing Methodology.
-- Interactions With Other Components.
-- Diagram showing how components interact
-
 ## Schedule (For each of these eight weeks, describe at least two specific high-level tasks you plan to complete)
 
-Setting up github stuff, getting local development stuff ready
-Skeleton web app with the whiteboard and drawing capabilities
-Implement eraser capabilities and different colors for drawing
-Add text boxes and typing capabilities
-Pre-built shapes and certain sketches auto-fix
-Post-it notes and make notes downloadable
-Make note app aesthetically pleasing, work on UX/UI
-Selection tool and general debugging/ filler week
+<ol> 
+    <li>Setting up github stuff, getting local development stuff ready</li>
+    <li>Skeleton web app with the whiteboard and drawing capabilities</li>
+    <li>Implement eraser capabilities and different colors for drawing</li>
+    <li>Add text boxes and typing capabilities</li>
+    <li>Pre-built shapes and certain sketches auto-fix</li>
+    <li>Post-it notes and make notes downloadable</li>
+    <li>Make note app aesthetically pleasing, work on UX/UI</li>
+    <li>Selection tool and general debugging/ filler week</li>
+</ol>
 
 ## Potential Risks (at least three possible risks + plan to resolve each)
 
-Issues with setting up the backend to interact with the frontend since we have little experience with this. Possible solutions are: asking our mentor for advice/help and doing research to figure out how to implement what we want.
-HTML canvas might not be robust enough for the functionality we are trying to implement, so we might need to use another tool to implement the drawing capabilities. Possible solutions are: asking our mentor for advice/help and doing research to figure out how to implement what we want.
-Not being able to accomplish one of our weekly goals due to a random bug or other complicated issue. Possible solution: leaving a filler week or two in our schedule to account for possible hiccups. We can always implement more later if we have time.
+<ol>
+    <li>Issues with setting up the backend to interact with the frontend since we have little experience with this. Possible solutions are: asking our mentor for advice/help and doing research to figure out how to implement what we want.</li>
+    <li>HTML canvas might not be robust enough for the functionality we are trying to implement, so we might need to use another tool to implement the drawing capabilities. Possible solutions are: asking our mentor for advice/help and doing research to figure out how to implement what we want.</li>
+    <li>Not being able to accomplish one of our weekly goals due to a random bug or other complicated issue. Possible solution: leaving a filler week or two in our schedule to account for possible hiccups. We can always implement more later if we have time.</li>
+</ol>
 
 ## Teamwork
 
