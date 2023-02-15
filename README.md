@@ -2,7 +2,7 @@
 
 ## Pitch
 
-WebWhiteboard will solve all your note taking problems. WebWhiteboard is a simple, easy to use and free whiteboard web app where anyone can take notes for classes or become an artist and express your creativity.
+WebWhiteboard is a simple and easy, cross-platform whiteboard web app where anyone can take notes for classes or become an artist and express their creativity. WebWhiteboard allows a portable solution for mapping out complex ideas.
 
 ## Functionality
 
@@ -23,7 +23,13 @@ Frontend: TypeScript/JS, HTML canvas or WebGL, and CSS. CSS will be utilized to 
 
 Backend: We will write the backend using Python and either the Flask and Django framework. Two of our team members are familiar with python and one has already developed a backend with Django. Both frameworks are widely used so there is plenty of documentation and tutorials available online. We aren’t entirely sure about the necessary responsibilities for the backend besides for setting up the server / hosting side of the project. In the future we might decide to incorporate a small database to allow users to save notes somehow. The backend might also be helpful for incorporating the prebuilt shapes and downloading functionality of the web application. If necessary/possible we will incorporate some form of unit tests to ensure proper functionality of our backend code.
 
+We are going to use github to manage the project workflow and have two separate branches one for backend and another for frontend.
+
 We chose to separate the project into frontend and backend because it allows us to work in parallel on both sections and split up the work easier between group members.
+
+<p align="center">
+  <img src="doc/assets/component_diagram.png" width=400 />
+</p>
 
 describe each major part and include the following for each part
 
