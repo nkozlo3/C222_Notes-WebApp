@@ -1,10 +1,18 @@
+//track mouse position
+let mouse_pos = { x: undefined, y: undefined };
+window.addEventListener('mousemove', (event) => {
+  mouse_pos = { x: event.clientX, y: event.clientY };
+});
+
+//initialize the webgl canvas
 const canvas = document.querySelector('canvas');
 const gl = canvas.getContext("webgl", {antialias: false});
 if (!gl) {
-  throw new Error('webgl is not supported');
+  throw new Error('Webgl is not supported');
 }
 
-const vertexData = [
+//initialize cube data
+let cube_vertex_data = [
   // Front
   0.5, 0.5, 0.5,
   0.5, -.5, 0.5,
@@ -53,28 +61,26 @@ const vertexData = [
   0.5, -.5, -.5,
   -.5, -.5, -.5,
 ];
-
-
-let colorData = [];
+let cube_color_data = [];
 for (let face = 0; face < 6; face++) {
     let faceColor = [Math.random(), Math.random(), Math.random()];
     for (let vertex = 0; vertex < 6; vertex++) {
-        colorData.push(...faceColor);
+        cube_color_data.push(...faceColor);
     }
 }
 
-//Buffers
-const positionBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertexData), gl.STATIC_DRAW);
+//buffers
+let cube_position_buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, cube_position_buffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube_vertex_data), gl.STATIC_DRAW);
 
-const colorBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colorData), gl.STATIC_DRAW);
+let cube_color_buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, cube_color_buffer);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(cube_color_data), gl.STATIC_DRAW);
 
-//Vertex shader
-const vertexShader = gl.createShader(gl.VERTEX_SHADER);
-gl.shaderSource(vertexShader, `
+//vertex shader
+let cube_vertex_shader = gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(cube_vertex_shader, `
 precision mediump float;
 
 attribute vec3 position;
@@ -86,14 +92,15 @@ uniform mat4 matrix;
 void main()
 {
   vColor = color;
+  //outputs to clip-space?
   gl_Position = matrix * vec4(position, 1);
 }
 `);
-gl.compileShader(vertexShader);
+gl.compileShader(cube_vertex_shader);
 
-//Fragment shader
-const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
-gl.shaderSource(fragmentShader, `
+//fragment shader
+let cube_frag_shader = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(cube_frag_shader, `
 precision mediump float;
 varying vec3 vColor;
 
@@ -102,71 +109,80 @@ void main()
   gl_FragColor = vec4(vColor, 1);
 }
 `);
-gl.compileShader(fragmentShader);
+gl.compileShader(cube_frag_shader);
 
-//Use these shaders
-const program = gl.createProgram();
-gl.attachShader(program, vertexShader);
-gl.attachShader(program, fragmentShader);
-gl.linkProgram(program);
+//use these shaders
+let cube_shader_program = gl.createProgram();
+gl.attachShader(cube_shader_program, cube_vertex_shader);
+gl.attachShader(cube_shader_program, cube_frag_shader);
+gl.linkProgram(cube_shader_program);
 
-//Attributes - these are in the vertex shader
-const positionLocation = gl.getAttribLocation(program, 'position');
-gl.enableVertexAttribArray(positionLocation);
-gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+//attributes - these are in the vertex shader
+let cube_pos_attrib_loc = gl.getAttribLocation(cube_shader_program, 'position');
+gl.enableVertexAttribArray(cube_pos_attrib_loc);
+gl.bindBuffer(gl.ARRAY_BUFFER, cube_position_buffer);
+gl.vertexAttribPointer(cube_pos_attrib_loc, 3, gl.FLOAT, false, 0, 0);
 
-const colorLocation = gl.getAttribLocation(program, 'color');
-gl.enableVertexAttribArray(colorLocation);
-gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-gl.vertexAttribPointer(colorLocation, 3, gl.FLOAT, false, 0, 0);
+let cube_col_attrib_loc = gl.getAttribLocation(cube_shader_program, 'color');
+gl.enableVertexAttribArray(cube_col_attrib_loc);
+gl.bindBuffer(gl.ARRAY_BUFFER, cube_color_buffer);
+gl.vertexAttribPointer(cube_col_attrib_loc, 3, gl.FLOAT, false, 0, 0);
 
-gl.useProgram(program);
+//set cube program as current program
+gl.useProgram(cube_shader_program);
 gl.enable(gl.DEPTH_TEST);
 
-const uniformLocations = {
-  matrix: gl.getUniformLocation(program, 'matrix'),
+let uniform_locations = {
+  matrix: gl.getUniformLocation(cube_shader_program, 'matrix'),
 };
 
-const projectionMatrix = mat4.create();
-mat4.perspective(projectionMatrix,
-  Math.PI/2,
-  canvas.width/canvas.height,
-  0.03,
-  1000
-);
+//initialize matrices
+let camera_proj_mat = mat4.create();
+mat4.perspective(camera_proj_mat, Math.PI/2, canvas.width/canvas.height, 0.03, 1000);
+let camera_view_mat = mat4.create();
+mat4.translate(camera_view_mat, camera_view_mat, [0,0,0]);
 
-const viewMatrix = mat4.create();
-mat4.translate(viewMatrix, viewMatrix, [0,0,1]);
-mat4.invert(viewMatrix, viewMatrix);
+let cube_model_mat = mat4.create();
+mat4.translate(cube_model_mat, cube_model_mat, [0,0,-3]);
 
-const modelMatrix = mat4.create();
-mat4.translate(modelMatrix, modelMatrix, [0,0,-1.5]);
+let cube_MV_mat = mat4.create();
+let cube_MVP_mat = mat4.create();
 
-const mvMatrix = mat4.create();
+//initialize some state
+gl.clearColor(0.75, 0.9, .7, 1);
+let time = 0;
 
-const mvpMatrix = mat4.create();
-
-gl.clearColor(0.4,0.6,.7,1);
-
-//gl.sampleCoverage(0.2, false);
-//gl.enable(gl.SAMPLE_COVERAGE);
-
+//define the animation loop
 function animate()
 {
   //update
-  mat4.rotateZ(modelMatrix, modelMatrix, 0.001);
-  mat4.rotateY(modelMatrix, modelMatrix, 0.001);
-  mat4.multiply(mvMatrix, viewMatrix, modelMatrix);
-  mat4.multiply(mvpMatrix, projectionMatrix, mvMatrix);
+  time += 0.01;
 
-  gl.uniformMatrix4fv(uniformLocations.matrix, false, mvpMatrix);
+  //rotate cube model
+  mat4.rotateZ(cube_model_mat, cube_model_mat, Math.sin(time*3)*0.03 + 0.004);
+  mat4.rotateY(cube_model_mat, cube_model_mat, Math.sin(time*2)*0.03 + 0.004);
+  mat4.rotateX(cube_model_mat, cube_model_mat, Math.sin(time*5)*0.03 + 0.004);
+
+  //set the position of the cube model to move in a circle
+  cube_model_mat[12] = Math.cos(time);
+  cube_model_mat[13] = Math.sin(time);
+
+  //apply matrix stuff
+  let temp_camera_mat = mat4.create();
+  mat4.invert(temp_camera_mat, camera_view_mat);
+  mat4.multiply(cube_MV_mat, temp_camera_mat, cube_model_mat);
+  mat4.multiply(cube_MVP_mat, camera_proj_mat, cube_MV_mat);
+
+  //set the uniforms for the shader
+  gl.uniformMatrix4fv(uniform_locations.matrix, false, cube_MVP_mat);
   
   //draw
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES, 0, vertexData.length / 3);
+  gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
 
   //loop
   requestAnimationFrame(animate);
 }
+
+//start the loop when the script loads
 animate();

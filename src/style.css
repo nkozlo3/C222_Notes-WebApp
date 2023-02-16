@@ -1,5 +1,5 @@
 #glcanvas
 {
-    border: black 2px solid;
+    border: rgb(65, 97, 90) 6px solid;
     image-rendering: pixelated;
 }
