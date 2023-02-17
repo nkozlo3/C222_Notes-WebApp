@@ -4,8 +4,16 @@ window.addEventListener('mousemove', (event) => {
   mouse_pos = { x: event.clientX, y: event.clientY };
 });
 
-//initialize the webgl canvas
+//initialize the webgl canvas - scale it to look good on iphone
+const width = 640;
+const height = 640;
 const canvas = document.querySelector('canvas');
+const ratio = Math.floor(window.devicePixelRatio);
+canvas.width = width * ratio;
+canvas.height = height * ratio;
+canvas.style.width = `${width}px`;
+canvas.style.height = `${height}px`;
+
 const gl = canvas.getContext("webgl", {antialias: false});
 if (!gl) {
   throw new Error('Webgl is not supported');
