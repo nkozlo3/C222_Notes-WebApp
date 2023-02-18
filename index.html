@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-  <div id="wrap" style="height:fit-content; width: fit-content;"></div>
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>CS222 Project</title>
-    <link rel="stylesheet" href="./webgl.css" type="text/css" />
-    <link id="STYLE_" rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="./webgl.css" type="text/css"/>
+    <link id="STYLE_" rel="stylesheet" href="style.css"/>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
       integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
@@ -14,16 +13,7 @@
     ></script>
     <script src="webgl-demo.js" type="module" defer></script>
   </head>
-  <body style="background-image: url('../data/better.jpg')">
+  <body>
     <canvas id="glcanvas"></canvas>
-    <script type="text/javascript">
-      document.getElementById("glcanvas").height = window.innerHeight;
-      document.getElementById("glcanvas").width = window.innerWidth;
-
-      window.addEventListener("resize", function () {
-        document.getElementById("glcanvas").height = window.innerHeight;
-        document.getElementById("glcanvas").width = window.innerWidth;
-      });
-    </script>
   </body>
 </html>
