@@ -4,6 +4,10 @@ window.addEventListener("pointermove", (event) => {
   mouse_pos = { x: event.clientX, y: event.clientY };
 });
 
+//disable scrolling on mobile devices
+document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false });
+
+//initialize the canvas to the size of the screen
 document.getElementById("glcanvas").height = window.innerHeight;
 document.getElementById("glcanvas").width = window.innerWidth;
 
