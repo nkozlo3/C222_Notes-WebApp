@@ -1,3 +1,6 @@
+// on load of the page, clear the textarea
+document.getElementById("input").value = "";
+
 // listen for the click event on the text area with the id 'input'
 document.getElementById("input").addEventListener("click", function () {
   // clear the textarea 
