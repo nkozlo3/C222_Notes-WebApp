@@ -8,6 +8,61 @@
   overflow: hidden;
 }
 
+#input {
+  position: absolute;
+  width: 30%;
+  height: 5%;
+  top: 5%;
+  left: 30%;
+  z-index: 1;
+  background-color: transparent;
+  display: -webkit-flex;
+  font-size: 100%;
+  outline: 1px solid white;
+}
+#input:focus {
+  height: 40%;
+}
+
+#newCheckBoxButton {
+  position: absolute;
+  width: 3%;
+  height: 5.3%;
+  top: 5%;
+  left: 57.2%;
+  z-index: 1;
+  background-color: transparent;
+  font-size: 100%;
+  border: none;
+}
+#newCheckBoxButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#newCheckBoxButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+
+#newDrawingButton {
+  position: absolute;
+  width: 3%;
+  height: 5.3%;
+  top: 5%;
+  left: 54.17%;
+  z-index: 1;
+  background-color: transparent;
+  font-size: 100%;
+  border: none;
+}
+#newDrawingButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#newDrawingButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+
+/* for the whiteboard page */
 .whiteboard {
   height: 100%;
   width: 100%;

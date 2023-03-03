@@ -3,7 +3,19 @@ let mouse_pos = { x: undefined, y: undefined };
 window.addEventListener("pointermove", (event) => {
   mouse_pos = { x: event.clientX, y: event.clientY };
 });
+//keep track of whether the mouse button is held down or not
+let mouse_down = false;
+window.addEventListener("pointerdown", () => {
+  mouse_down = true;
+});
+window.addEventListener("pointerup", () => {
+  mouse_down = false;
+});
 
+//disable scrolling on mobile devices
+document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false });
+
+//initialize the canvas to the size of the screen
 document.getElementById("glcanvas").height = window.innerHeight;
 document.getElementById("glcanvas").width = window.innerWidth;
 
@@ -63,6 +75,16 @@ gl.bufferData(
   new Float32Array(cube_color_data),
   gl.STATIC_DRAW
 );
+
+let stroke_data = [];
+
+let pencil_stroke_buffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
+gl.bufferData(
+  gl.ARRAY_BUFFER,
+  new Float32Array(stroke_data),
+  gl.STATIC_DRAW
+)
 
 //vertex shader
 let cube_vertex_shader = gl.createShader(gl.VERTEX_SHADER);
@@ -197,14 +219,16 @@ mat4.translate(camera_view_mat, camera_view_mat, [0, 0, 0]);
 let current_MV_matr = mat4.create();
 let currentMVP_matr = mat4.create();
 
-//initialize some state
+//initialize some state for the animation loop
 gl.enable(gl.DEPTH_TEST);
 gl.clearColor(0.8, 0.9, 0.82, 1);
 let time = 0;
+let mouse_down_last_frame = mouse_down; //useful to know when the mouse starts to draw
 
 //define the animation loop
 function animate() {
-  //update
+  //===============<<UPDATE OBJECTS AND STATE>>===================//
+
   time += 0.01;
 
   //rotate cube model
@@ -236,13 +260,49 @@ function animate() {
   mouse_model_matr[12] =
     (mouse_pos.x / canvas.width - 0.5) * (canvas.width / canvas.height) * 6;
   mouse_model_matr[13] = (-mouse_pos.y / canvas.height + 0.5) * 6;
+  
+  let proxy_mouse = {x: (mouse_pos.x / canvas.width - 0.5)*2, y: (mouse_pos.y / canvas.height - 0.5)*2 };
 
-  //===============DRAWING STUFF===================//
+  if(stroke_data.length < 6000 && mouse_down)
+  {
+    if(stroke_data.length < 6 || !mouse_down_last_frame)
+    {
+      stroke_data.push(proxy_mouse.x);
+      stroke_data.push(-proxy_mouse.y);
+      stroke_data.push(proxy_mouse.x);
+      stroke_data.push(-proxy_mouse.y);
+      stroke_data.push(proxy_mouse.x);
+      stroke_data.push(-proxy_mouse.y);
+    }
+    else
+    {
+      stroke_data.push(stroke_data[stroke_data.length - 4]);
+      stroke_data.push(stroke_data[stroke_data.length - 4]);
+      stroke_data.push(proxy_mouse.x);
+      stroke_data.push(-proxy_mouse.y + 0.01);
+      stroke_data.push(proxy_mouse.x);
+      stroke_data.push(-proxy_mouse.y);
+    }
+
+  }
+  gl.bufferData(
+  gl.ARRAY_BUFFER,
+  new Float32Array(stroke_data),
+  gl.STATIC_DRAW
+)
+  //console.log(stroke_data.length);
+
+  mouse_down_last_frame = mouse_down;
+
+  //===============<<DRAWING STUFF>>===================//
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   //get inverse of camera view matrix
   let temp_camera_mat = mat4.create();
   mat4.invert(temp_camera_mat, camera_view_mat);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, cube_position_buffer);
+  gl.vertexAttribPointer(pos_attrib_loc_2, 3, gl.FLOAT, false, 0, 0);
 
   gl.useProgram(cube_shader_program);
 
@@ -267,6 +327,16 @@ function animate() {
 
   //draw this object with current selected shader program
   gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
+
+
+  gl.enableVertexAttribArray(cube_pos_attrib_loc);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
+  gl.vertexAttribPointer(pos_attrib_loc_2, 2, gl.FLOAT, false, 0, 0);
+  
+  gl.uniformMatrix4fv(matrix_2, false, mat4.create());
+
+  gl.drawArrays(gl.TRIANGLES, 0, stroke_data.length / 2);
 
   //request to run this function again on the next animation frame
   requestAnimationFrame(animate);
