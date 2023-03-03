@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8"/>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+    />
     <title>CS222 Project</title>
-    <link rel="stylesheet" href="./webgl.css" type="text/css"/>
-    <link id="STYLE_" rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="./webgl.css" type="text/css" />
+    <link id="STYLE_" rel="stylesheet" href="style.css" />
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
       integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
@@ -13,7 +18,33 @@
     ></script>
     <script src="webgl-demo.js" type="module" defer></script>
   </head>
+  <!--Add a div to preserve aspect ratio across devices and screen sizes-->
   <body>
-    <canvas id="glcanvas"></canvas>
+    <div
+      id="wrapper"
+      style="
+        margin-left: auto;
+        margin-right: auto;
+        width: device-width;
+        height: device-height;
+      "
+    >
+      <canvas id="glcanvas"></canvas>
+      <!-- add a text box input to the page-->
+      <input
+        type="text"
+        id="input"
+        placeholder="Take a note..."
+        class="standardText"
+      />
+      <!-- add a button for a new note to the page-->
+      <button id="newCheckBoxButton" class="StandardButton">
+        <i class="uil uil-check-square"></i>
+      </button>
+      <!-- add a button for a new drawing note to the page -->
+      <button id="newDrawingButton" class="StandardButton">
+        <i class="uil uil-pen"></i>
+      </button>
+    </div>
   </body>
 </html>

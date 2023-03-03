@@ -7,3 +7,51 @@
   padding: 0;
   overflow: hidden;
 }
+#input {
+  position: absolute;
+  /* make this twice as wide */
+  width: 30%;
+  height: 5%;
+  top: 5%;
+  left: 30%;
+  z-index: 1;
+  background-color: transparent;
+  display: -webkit-flex;
+}
+#input:focus {
+  height: 40%;
+}
+
+#newCheckBoxButton {
+  position: absolute;
+  width: 3%;
+  height: 5.3%;
+  top: 5%;
+  left: 57.2%;
+  z-index: 1;
+  background-color: transparent;
+}
+#newCheckBoxButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#newCheckBoxButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+
+#newDrawingButton {
+  position: absolute;
+  width: 3%;
+  height: 5.3%;
+  top: 5%;
+  left: 54.17%;
+  z-index: 1;
+  background-color: transparent;
+}
+#newDrawingButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#newDrawingButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
