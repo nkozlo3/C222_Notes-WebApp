@@ -17,6 +17,7 @@
       defer
     ></script>
     <script src="webgl-demo.js" type="module" defer></script>
+    <script src="Note.js" type="module" defer></script>
   </head>
   <!--Add a div to preserve aspect ratio across devices and screen sizes-->
   <body>
@@ -31,12 +32,13 @@
     >
       <canvas id="glcanvas"></canvas>
       <!-- add a text box input to the page-->
-      <input
+      <textarea
         type="text"
         id="input"
         placeholder="Take a note..."
         class="standardText"
-      />
+      >
+      </textarea>
       <!-- add a button for a new note to the page-->
       <button id="newCheckBoxButton" class="StandardButton">
         <i class="uil uil-check-square"></i>
@@ -44,6 +46,7 @@
       <!-- add a button for a new drawing note to the page -->
       <button id="newDrawingButton" class="StandardButton">
         <i class="uil uil-pen"></i>
+        <html></html>
       </button>
     </div>
   </body>

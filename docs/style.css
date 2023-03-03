@@ -9,7 +9,6 @@
 }
 #input {
   position: absolute;
-  /* make this twice as wide */
   width: 30%;
   height: 5%;
   top: 5%;
@@ -17,6 +16,8 @@
   z-index: 1;
   background-color: transparent;
   display: -webkit-flex;
+  font-size: 100%;
+  outline: 1px solid white;
 }
 #input:focus {
   height: 40%;
@@ -30,6 +31,8 @@
   left: 57.2%;
   z-index: 1;
   background-color: transparent;
+  font-size: 100%;
+  border: none;
 }
 #newCheckBoxButton:hover {
   cursor: pointer;
@@ -47,6 +50,8 @@
   left: 54.17%;
   z-index: 1;
   background-color: transparent;
+  font-size: 100%;
+  border: none;
 }
 #newDrawingButton:hover {
   cursor: pointer;
