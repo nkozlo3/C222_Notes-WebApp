@@ -3,13 +3,14 @@ let mouse_pos = { x: undefined, y: undefined };
 window.addEventListener("pointermove", (event) => {
   mouse_pos = { x: event.clientX, y: event.clientY };
 });
-let mouseDown = false;
-document.body.onmousedown = function() { 
-  mouseDown = true;
-}
-document.body.onmouseup = function() {
-  mouseDown = false;
-}
+//keep track of whether the mouse button is held down or not
+let mouse_down = false;
+window.addEventListener("pointerdown", () => {
+  mouse_down = true;
+});
+window.addEventListener("pointerup", () => {
+  mouse_down = false;
+});
 
 //disable scrolling on mobile devices
 document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false });
@@ -218,14 +219,16 @@ mat4.translate(camera_view_mat, camera_view_mat, [0, 0, 0]);
 let current_MV_matr = mat4.create();
 let currentMVP_matr = mat4.create();
 
-//initialize some state
+//initialize some state for the animation loop
 gl.enable(gl.DEPTH_TEST);
 gl.clearColor(0.8, 0.9, 0.82, 1);
 let time = 0;
+let mouse_down_last_frame = mouse_down; //useful to know when the mouse starts to draw
 
 //define the animation loop
 function animate() {
-  //update
+  //===============<<UPDATE OBJECTS AND STATE>>===================//
+
   time += 0.01;
 
   //rotate cube model
@@ -260,9 +263,9 @@ function animate() {
   
   let proxy_mouse = {x: (mouse_pos.x / canvas.width - 0.5)*2, y: (mouse_pos.y / canvas.height - 0.5)*2 };
 
-  if(stroke_data.length < 6000 && mouseDown)
+  if(stroke_data.length < 6000 && mouse_down)
   {
-    if(stroke_data.length < 6)
+    if(stroke_data.length < 6 || !mouse_down_last_frame)
     {
       stroke_data.push(proxy_mouse.x);
       stroke_data.push(-proxy_mouse.y);
@@ -289,8 +292,9 @@ function animate() {
 )
   //console.log(stroke_data.length);
 
+  mouse_down_last_frame = mouse_down;
 
-  //===============DRAWING STUFF===================//
+  //===============<<DRAWING STUFF>>===================//
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   //get inverse of camera view matrix
@@ -333,7 +337,6 @@ function animate() {
   gl.uniformMatrix4fv(matrix_2, false, mat4.create());
 
   gl.drawArrays(gl.TRIANGLES, 0, stroke_data.length / 2);
-
 
   //request to run this function again on the next animation frame
   requestAnimationFrame(animate);
