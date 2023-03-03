@@ -1,27 +1,47 @@
-(function draw() {
-  let canvas = $(".whiteboard")[0];
-  let context = canvas.getContext("whiteboardCanvas");
-  let current = {
+function draw() {
+  const canvas = document.getElementById("whiteboardCanvas");
+  const context = canvas.getContext("2d");
+
+  context.canvas.width = window.innerWidth;
+  context.canvas.height = window.innerHeight;
+
+  var current = {
     //tracks attributes of the current mouse
     color: "black",
   };
-  let drawing = false;
+  var drawing = false;
 
   //===============COLOR CHANGING / BUTTON STUFF===================//
-  var colorBtn = "#color-btn";
-  var clearBtn = "#clear-btn";
+  var colorBtn = document.getElementById("color-btn");
+  var clearBtn = document.getElementById("clear-btn");
+
+  //eventlisteners for buttons
+  colorBtn.addEventListener("click", changeColor);
+  clearBtn.addEventListener("click", clearBoard);
+
+  //eventlisteners that should track certain mouse movements
+  canvas.addEventListener("mousedown", onMouseDown);
+  canvas.addEventListener("mouseup", onMouseUp);
+  canvas.addEventListener("mouseout", onMouseUp);
+  canvas.addEventListener("mousemove", onMouseMove);
 
   function changeColor() {
-    current.color = "#" + Math.floor(Math.random() * 16777215).toString(16); // change line color https://css-tricks.com/snippets/javascript/random-hex-color/
-    colorBtn.css("border", "5px solid " + current.color); // change the button border color
+    var c = "#" + Math.floor(Math.random() * 16777215).toString(16); // change line color https://css-tricks.com/snippets/javascript/random-hex-color/
+    current.color = c;
+    var existingStyle = colorBtn.getAttribute("style");
+    colorBtn.setAttribute("style", existingStyle + "; background-color: " + c);
   }
+
+  // was going to try setting up a test for this function but getting weird errors with jest
+  // saying that the canvas.getContext is null...
+  // function changeColorRed() {
+  //   current.color = "red";
+  //   colorBtn.css("border", "5px solid " + current.color); // change the button border color
+  // }
 
   function clearBoard() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
-
-  colorBtn.on("click", changeColor);
-  clearBtn.on("click", clearBoard);
 
   //===============DRAW ON MOUSE MOVE STUFF===================//
   function drawLine(x0, y0, x1, y1, color) {
@@ -56,10 +76,6 @@
     current.x = e.clientX;
     current.y = e.clientY;
   }
+}
 
-  //eventlisteners that should track certain mouse movements
-  canvas.addEventListener("mousedown", onMouseDown);
-  canvas.addEventListener("mouseup", onMouseUp);
-  canvas.addEventListener("mouseout", onMouseUp);
-  canvas.addEventListener("mousemove", onMouseMove);
-});
+draw();
