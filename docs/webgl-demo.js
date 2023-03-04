@@ -78,6 +78,13 @@ gl.bufferData(
 
 let stroke_data = [];
 
+window.addEventListener('keypress', function (e) {
+  if (e.key == ' ')
+  {
+    stroke_data = [];
+  }
+}, false);
+
 let pencil_stroke_buffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
 gl.bufferData(
@@ -171,7 +178,7 @@ precision mediump float;
 
 void main()
 {
-  gl_FragColor = vec4(1, 0., 0.5, 1);
+  gl_FragColor = vec4(0.3, 0.3, 0.5, 1);
 }
 `
 );
@@ -224,6 +231,9 @@ gl.enable(gl.DEPTH_TEST);
 gl.clearColor(0.8, 0.9, 0.82, 1);
 let time = 0;
 let mouse_down_last_frame = mouse_down; //useful to know when the mouse starts to draw
+let old_mouse_proxy = {x:0,y:0};
+let old_adj = {x:0,y:0};
+let old_draw_pos = {x:0,y:0};
 
 //define the animation loop
 function animate() {
@@ -263,7 +273,13 @@ function animate() {
   
   let proxy_mouse = {x: (mouse_pos.x / canvas.width - 0.5)*2, y: (mouse_pos.y / canvas.height - 0.5)*2 };
 
-  if(stroke_data.length < 6000 && mouse_down)
+  let adj = { x: proxy_mouse.x - old_mouse_proxy.x, y: proxy_mouse.y - old_mouse_proxy.y};
+  let adj_magnitude = Math.sqrt(adj.x*adj.x + adj.y*adj.y);
+  adj = {x:adj.y/adj_magnitude/200, y:adj.x/adj_magnitude/200};
+
+  let moved = Math.abs(proxy_mouse.x - old_mouse_proxy.x) + Math.abs(proxy_mouse.y - old_mouse_proxy.y) > 0.008;
+
+  if(mouse_down && moved)
   {
     if(stroke_data.length < 6 || !mouse_down_last_frame)
     {
@@ -276,23 +292,32 @@ function animate() {
     }
     else
     {
-      stroke_data.push(stroke_data[stroke_data.length - 4]);
-      stroke_data.push(stroke_data[stroke_data.length - 4]);
-      stroke_data.push(proxy_mouse.x);
-      stroke_data.push(-proxy_mouse.y + 0.01);
-      stroke_data.push(proxy_mouse.x);
-      stroke_data.push(-proxy_mouse.y);
-    }
+      stroke_data.push(old_mouse_proxy.x + old_adj.x);
+      stroke_data.push(-old_mouse_proxy.y + old_adj.y);
+      stroke_data.push(proxy_mouse.x + adj.x);
+      stroke_data.push(-proxy_mouse.y + adj.y);
+      stroke_data.push(proxy_mouse.x - adj.x);
+      stroke_data.push(-proxy_mouse.y - adj.y);
 
+      stroke_data.push(old_mouse_proxy.x + old_adj.x);
+      stroke_data.push(-old_mouse_proxy.y + old_adj.y);
+      stroke_data.push(proxy_mouse.x - adj.x);
+      stroke_data.push(-proxy_mouse.y - adj.y);
+      stroke_data.push(old_mouse_proxy.x - old_adj.x);
+      stroke_data.push(-old_mouse_proxy.y - old_adj.y);
+    }
+    //old_draw_pos = {x: proxy_mouse.x, y:proxy_mouse.y };
+    old_adj = {x:adj.x, y:adj.y};
+    old_mouse_proxy = {x:proxy_mouse.x, y:proxy_mouse.y};
   }
+  mouse_down_last_frame = mouse_down;
+
   gl.bufferData(
   gl.ARRAY_BUFFER,
   new Float32Array(stroke_data),
   gl.STATIC_DRAW
 )
-  //console.log(stroke_data.length);
 
-  mouse_down_last_frame = mouse_down;
 
   //===============<<DRAWING STUFF>>===================//
   gl.clear(gl.COLOR_BUFFER_BIT);
@@ -314,7 +339,7 @@ function animate() {
   gl.uniformMatrix4fv(cube_matrix_uniform, false, currentMVP_matr);
 
   //draw this object with current selected shader program
-  gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
+  //gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
 
   gl.useProgram(shader_program_2);
 
@@ -326,8 +351,7 @@ function animate() {
   gl.uniformMatrix4fv(matrix_2, false, currentMVP_matr);
 
   //draw this object with current selected shader program
-  gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
-
+  //gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
 
   gl.enableVertexAttribArray(cube_pos_attrib_loc);
 
