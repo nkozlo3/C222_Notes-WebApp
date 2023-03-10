@@ -7,10 +7,10 @@
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
     />
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <title>CS222 Project</title>
     <link rel="stylesheet" href="./webgl.css" type="text/css" />
     <link id="STYLE_" rel="stylesheet" href="style.css" />
+    <link id="STYLE_" rel="stylesheet" href="unorderedList.css" />
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
       integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
@@ -19,6 +19,7 @@
     ></script>
     <script src="background.js" type="module" defer></script>
     <script src="storage.js" type="module" defer></script>
+    <script src="checkList.js" type="module" defer></script>
   </head>
   <!--Add a div to preserve aspect ratio across devices and screen sizes-->
   <body>
@@ -32,23 +33,38 @@
       "
     >
       <canvas id="glcanvas"></canvas>
-      <!-- add a text box input to the page-->
-      <textarea
-        type="text"
-        id="input"
-        placeholder="Take a note..."
-        class="standardText"
-      >
-      </textarea>
-      <!-- add a button for a new note to the page-->
-      <button id="newCheckBoxButton" class="StandardButton">
-        <i class="uil uil-check-square"></i>
-      </button>
-      <!-- add a button for a new drawing note to the page -->
-      <button id="newDrawingButton" class="StandardButton">
-        <i class="uil uil-pen"></i>
-        <html></html>
-      </button>
+      <!-- div for main screen -->
+      <div id="defaultDiv">
+        <textarea
+          type="text"
+          id="input"
+          placeholder="Take a note..."
+          class="standardText"
+        >
+        </textarea>
+        <!-- add a button for a new note to the page-->
+        <button id="newCheckBoxButton" class="StandardButton">
+          <i class="uil uil-check-square"></i>
+        </button>
+        <!-- add a button for a new drawing note to the page -->
+        <button id="newDrawingButton" class="StandardButton">
+          <i class="uil uil-pen"></i>
+          <html></html>
+        </button>
+      </div>
+      <!-- div for drawing mode -->
+      <div id="drawingDiv">
+        <button id="saveDrawing" class="standardSave">Save Drawing</button>
+      </div>
+
+      <!-- div for checklist mode -->
+      <div id="checkListDiv">
+        <input type="text" id="checkListTitle" placeholder="Title" />
+        <button id="saveCheckList" class="standardSave">Save Checklist</button>
+        <button id="checkListAdd"> Add </button>
+        <!-- new ul -->
+        <ul id="checkList"></ul>
+      </div>
     </div>
   </body>
 </html>
