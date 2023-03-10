@@ -28,7 +28,7 @@ We are going to use github to manage the project workflow and have two separate 
 We chose to separate the project into frontend and backend because it allows us to work in parallel on both sections and split up the work easier between group members.
 
 <p align="center">
-  <img src="doc/assets/component_diagram.png" width=400 />
+  <img src="data/assets/component_diagram.png" width=400 />
 </p>
 
 ## Schedule (For each of these eight weeks, describe at least two specific high-level tasks you plan to complete)

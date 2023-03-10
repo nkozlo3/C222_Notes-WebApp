@@ -1,0 +1,27 @@
+/* Remove margin and padding from unordered lists */
+ul {
+  margin: 0;
+  padding: 0;
+  width: 30%;
+  height: 5%;
+  left: 30%;
+  position: relative;
+}
+
+/* style items of unordered list */
+ul li {
+  cursor: pointer;
+  position: relative;
+  padding: 12px 8px 12px 40px;
+  background: #eee;
+  font-size: 18px;
+  transition: 0.2s;
+}
+/* Color odd items differently */
+ul li:nth-child(odd) {
+  background: #f9f9f9;
+}
+/* On hover, change background to grey */
+ul li:hover {
+  background: grey;
+}
