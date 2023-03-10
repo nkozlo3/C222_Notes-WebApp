@@ -13,7 +13,13 @@ window.addEventListener("pointerup", () => {
 });
 
 //disable scrolling on mobile devices
-document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false });
+document.addEventListener(
+  "touchmove",
+  (e) => {
+    e.preventDefault();
+  },
+  { passive: false }
+);
 
 //initialize the canvas to the size of the screen
 document.getElementById("glcanvas").height = window.innerHeight;
@@ -78,20 +84,19 @@ gl.bufferData(
 
 let stroke_data = [];
 
-window.addEventListener('keypress', function (e) {
-  if (e.key == ' ')
-  {
-    stroke_data = [];
-  }
-}, false);
+window.addEventListener(
+  "keypress",
+  function (e) {
+    if (e.key == " ") {
+      stroke_data = [];
+    }
+  },
+  false
+);
 
 let pencil_stroke_buffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
-gl.bufferData(
-  gl.ARRAY_BUFFER,
-  new Float32Array(stroke_data),
-  gl.STATIC_DRAW
-)
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(stroke_data), gl.STATIC_DRAW);
 
 //vertex shader
 let cube_vertex_shader = gl.createShader(gl.VERTEX_SHADER);
@@ -231,9 +236,9 @@ gl.enable(gl.DEPTH_TEST);
 gl.clearColor(0.8, 0.9, 0.82, 1);
 let time = 0;
 let mouse_down_last_frame = mouse_down; //useful to know when the mouse starts to draw
-let old_mouse_proxy = {x:0,y:0};
-let old_adj = {x:0,y:0};
-let old_draw_pos = {x:0,y:0};
+let old_mouse_proxy = { x: 0, y: 0 };
+let old_adj = { x: 0, y: 0 };
+let old_draw_pos = { x: 0, y: 0 };
 
 //define the animation loop
 function animate() {
@@ -270,28 +275,33 @@ function animate() {
   mouse_model_matr[12] =
     (mouse_pos.x / canvas.width - 0.5) * (canvas.width / canvas.height) * 6;
   mouse_model_matr[13] = (-mouse_pos.y / canvas.height + 0.5) * 6;
-  
-  let proxy_mouse = {x: (mouse_pos.x / canvas.width - 0.5)*2, y: (mouse_pos.y / canvas.height - 0.5)*2 };
 
-  let adj = { x: proxy_mouse.x - old_mouse_proxy.x, y: proxy_mouse.y - old_mouse_proxy.y};
-  let adj_magnitude = Math.sqrt(adj.x*adj.x + adj.y*adj.y);
-  adj = {x:adj.y/adj_magnitude/200, y:adj.x/adj_magnitude/200};
+  let proxy_mouse = {
+    x: (mouse_pos.x / canvas.width - 0.5) * 2,
+    y: (mouse_pos.y / canvas.height - 0.5) * 2,
+  };
 
-  let moved = Math.abs(proxy_mouse.x - old_mouse_proxy.x) + Math.abs(proxy_mouse.y - old_mouse_proxy.y) > 0.008;
+  let adj = {
+    x: proxy_mouse.x - old_mouse_proxy.x,
+    y: proxy_mouse.y - old_mouse_proxy.y,
+  };
+  let adj_magnitude = Math.sqrt(adj.x * adj.x + adj.y * adj.y);
+  adj = { x: adj.y / adj_magnitude / 200, y: adj.x / adj_magnitude / 200 };
 
-  if(mouse_down && moved)
-  {
-    if(stroke_data.length < 6 || !mouse_down_last_frame)
-    {
+  let moved =
+    Math.abs(proxy_mouse.x - old_mouse_proxy.x) +
+      Math.abs(proxy_mouse.y - old_mouse_proxy.y) >
+    0.008;
+
+  if (mouse_down && moved) {
+    if (stroke_data.length < 6 || !mouse_down_last_frame) {
       stroke_data.push(proxy_mouse.x);
       stroke_data.push(-proxy_mouse.y);
       stroke_data.push(proxy_mouse.x);
       stroke_data.push(-proxy_mouse.y);
       stroke_data.push(proxy_mouse.x);
       stroke_data.push(-proxy_mouse.y);
-    }
-    else
-    {
+    } else {
       stroke_data.push(old_mouse_proxy.x + old_adj.x);
       stroke_data.push(-old_mouse_proxy.y + old_adj.y);
       stroke_data.push(proxy_mouse.x + adj.x);
@@ -307,21 +317,15 @@ function animate() {
       stroke_data.push(-old_mouse_proxy.y - old_adj.y);
     }
     //old_draw_pos = {x: proxy_mouse.x, y:proxy_mouse.y };
-    old_adj = {x:adj.x, y:adj.y};
-    old_mouse_proxy = {x:proxy_mouse.x, y:proxy_mouse.y};
+    old_adj = { x: adj.x, y: adj.y };
+    old_mouse_proxy = { x: proxy_mouse.x, y: proxy_mouse.y };
   }
   mouse_down_last_frame = mouse_down;
 
-  gl.bufferData(
-  gl.ARRAY_BUFFER,
-  new Float32Array(stroke_data),
-  gl.STATIC_DRAW
-)
-
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(stroke_data), gl.STATIC_DRAW);
 
   //===============<<DRAWING STUFF>>===================//
-  gl.clear(gl.COLOR_BUFFER_BIT);
-
+  // gl.clear(gl.COLOR_BUFFER_BIT);
   //get inverse of camera view matrix
   let temp_camera_mat = mat4.create();
   mat4.invert(temp_camera_mat, camera_view_mat);
@@ -357,7 +361,7 @@ function animate() {
 
   gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
   gl.vertexAttribPointer(pos_attrib_loc_2, 2, gl.FLOAT, false, 0, 0);
-  
+
   gl.uniformMatrix4fv(matrix_2, false, mat4.create());
 
   gl.drawArrays(gl.TRIANGLES, 0, stroke_data.length / 2);
