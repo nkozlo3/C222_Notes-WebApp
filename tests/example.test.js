@@ -1,7 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-const myFunction = require("./../testing-demo.js");
+const myFunction = require("./testing-demo.js");
 
 describe("example test suite", () => {
   test("testing example sum function", () => {
