@@ -1,19 +1,40 @@
-//track mouse position
-let mouse_pos = { x: undefined, y: undefined };
+//keep track of whether the mouse stuff
+let mouse_pos = vec2.create();
 window.addEventListener("pointermove", (event) => {
-  mouse_pos = { x: event.clientX, y: event.clientY };
+  mouse_pos = vec2.fromValues(event.clientX, event.clientY);//{ x: event.clientX, y: event.clientY };
 });
-//keep track of whether the mouse button is held down or not
 let mouse_down = false;
+let penpressure = 0;
 window.addEventListener("pointerdown", () => {
   mouse_down = true;
 });
 window.addEventListener("pointerup", () => {
   mouse_down = false;
 });
+window.addEventListener("pointermove", (event) => {
+  penpressure = event.pressure;
+});
+let scroll_y = 0;
+let scroll_x = 0;
+let zoom = 1;
+let zoom_delta = 0;
+let rotate = 0;
+window.addEventListener("wheel", (event) =>
+{
+  if(event.ctrlKey == true)
+  {
+    zoom_delta = event.deltaY;
+    rotate = event.deltaX;
+  }
+  else
+  {
+    scroll_y = event.deltaY;
+    scroll_x = event.deltaX;
+  }
+});
 
 //disable scrolling on mobile devices
-document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false });
+document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false, premultipliedAlpha: false});
 
 //initialize the canvas to the size of the screen
 document.getElementById("glcanvas").height = window.innerHeight;
@@ -156,7 +177,7 @@ let cube_matrix_uniform = gl.getUniformLocation(cube_shader_program, "matrix");
 let v_shader_2 = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(
   v_shader_2,
-  `
+`
 precision mediump float;
 attribute vec3 position;
 uniform mat4 matrix;
@@ -173,12 +194,13 @@ gl.compileShader(v_shader_2);
 let f_shader_2 = gl.createShader(gl.FRAGMENT_SHADER);
 gl.shaderSource(
   f_shader_2,
-  `
+`
 precision mediump float;
+uniform vec3 color;
 
 void main()
 {
-  gl_FragColor = vec4(0.3, 0.3, 0.5, 1);
+  gl_FragColor = vec4(0, 0, 0, 1.);
 }
 `
 );
@@ -198,172 +220,135 @@ gl.vertexAttribPointer(pos_attrib_loc_2, 3, gl.FLOAT, false, 0, 0);
 
 let matrix_2 = gl.getUniformLocation(shader_program_2, "matrix");
 
+let color_uniform = gl.getUniformLocation(shader_program_2, "color");
+
 //=========================================================================================
 
 //initialize matrices
 let cube_model_mat = mat4.create();
-mat4.translate(cube_model_mat, cube_model_mat, [0, 0, -3]);
+mat4.translate(cube_model_mat, cube_model_mat, [0, 300, 0]);
+mat4.scale(cube_model_mat, cube_model_mat, [50,50,1]);
 
-let mouse_model_matr = mat4.create();
-mat4.translate(mouse_model_matr, mouse_model_matr, [0, 0, -3]);
-mat4.scale(mouse_model_matr, mouse_model_matr, [0.5, 0.5, 0.5]);
+let pixel_to_clip = mat4.create();
+mat4.scale(pixel_to_clip, pixel_to_clip, [canvas.width/2,-canvas.height/2,1]);
+mat4.translate(pixel_to_clip, pixel_to_clip, [1,-1,0]);
+mat4.invert(pixel_to_clip, pixel_to_clip);
 
-//perspective matrix - gives proper 3D perspective when rendering
-let camera_proj_mat = mat4.create();
-mat4.perspective(
-  camera_proj_mat,
-  Math.PI / 2,
-  canvas.width / canvas.height,
-  0.03,
-  1000
-);
-
-//camera view matrix - represents the actual transform of the camera
-let camera_view_mat = mat4.create();
-mat4.translate(camera_view_mat, camera_view_mat, [0, 0, 0]);
-
-//these are used every frame to convert vertices from world space to clip space
-let current_MV_matr = mat4.create();
-let currentMVP_matr = mat4.create();
+let clip_to_world = mat4.create();
+mat4.scale(clip_to_world, clip_to_world, [canvas.width/2, canvas.height/2, 1]);
 
 //initialize some state for the animation loop
 gl.enable(gl.DEPTH_TEST);
-gl.clearColor(0.8, 0.9, 0.82, 1);
+gl.clearColor(0.9, 0.9, 0.8, 1.0);
+gl.enable(gl.BLEND);
+gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 let time = 0;
-let mouse_down_last_frame = mouse_down; //useful to know when the mouse starts to draw
-let old_mouse_proxy = {x:0,y:0};
-let old_adj = {x:0,y:0};
-let old_draw_pos = {x:0,y:0};
+let prev_mouse_down = mouse_down; //useful to know when the mouse starts to draw
+let prev_worldspace_mousepos = vec2.create();
+let prev_adj = vec2.create();
 
-//define the animation loop
-function animate() {
-  //===============<<UPDATE OBJECTS AND STATE>>===================//
+let world_to_clip = mat4.create();
 
+function Update()
+{
   time += 0.01;
 
-  //rotate cube model
-  mat4.rotateZ(
-    cube_model_mat,
-    cube_model_mat,
-    Math.sin(time * 3) * 0.03 + 0.004
-  );
-  mat4.rotateY(
-    cube_model_mat,
-    cube_model_mat,
-    Math.sin(time * 2) * 0.03 + 0.004
-  );
-  mat4.rotateX(
-    cube_model_mat,
-    cube_model_mat,
-    Math.sin(time * 5) * 0.03 + 0.004
-  );
+  zoom *= Math.E**(zoom_delta/400);
 
-  //rotate small cube model
-  mat4.rotateY(mouse_model_matr, mouse_model_matr, 0.06);
-  mat4.rotateX(mouse_model_matr, mouse_model_matr, 0.06);
+  clip_to_world[0] = canvas.width * zoom;
+  clip_to_world[5] = canvas.height * zoom;
+  clip_to_world[12] += scroll_x * zoom ;
+  clip_to_world[13] -= scroll_y * zoom ;
+  scroll_y = 0;
+  scroll_x = 0;
+  zoom_delta = 0;
+  rotate = 0;
 
-  //set the position of the cube model to move in a circle
-  cube_model_mat[12] = Math.cos(time);
-  cube_model_mat[13] = Math.sin(time);
+  world_to_clip = mat4.create();
+  mat4.invert(world_to_clip, clip_to_world);
 
-  //set the position of the small cube to match the mouse position
-  mouse_model_matr[12] =
-    (mouse_pos.x / canvas.width - 0.5) * (canvas.width / canvas.height) * 6;
-  mouse_model_matr[13] = (-mouse_pos.y / canvas.height + 0.5) * 6;
-  
-  let proxy_mouse = {x: (mouse_pos.x / canvas.width - 0.5)*2, y: (mouse_pos.y / canvas.height - 0.5)*2 };
+  let worldspace_mousepos = vec2.clone(mouse_pos);
+  vec2.transformMat4(worldspace_mousepos, worldspace_mousepos, pixel_to_clip);
+  vec2.transformMat4(worldspace_mousepos, worldspace_mousepos, clip_to_world);
 
-  let adj = { x: proxy_mouse.x - old_mouse_proxy.x, y: proxy_mouse.y - old_mouse_proxy.y};
-  let adj_magnitude = Math.sqrt(adj.x*adj.x + adj.y*adj.y);
-  adj = {x:adj.y/adj_magnitude/200, y:adj.x/adj_magnitude/200};
+  cube_model_mat[12] = worldspace_mousepos[0];
+  cube_model_mat[13] = worldspace_mousepos[1];
+  mat4.rotateZ(cube_model_mat, cube_model_mat, 0.02);
 
-  let moved = Math.abs(proxy_mouse.x - old_mouse_proxy.x) + Math.abs(proxy_mouse.y - old_mouse_proxy.y) > 0.008;
-
+  //brush stroke geometry generation
+  let adj = vec2.create();
+  vec2.sub(adj, worldspace_mousepos, prev_worldspace_mousepos);
+  vec2.normalize(adj,adj);
+  vec2.scale(adj,adj,3);
+  adj = vec2.fromValues(adj[1], -adj[0]);
+  let moved = Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) + Math.abs(worldspace_mousepos[1] - prev_worldspace_mousepos[1]) > 0;
   if(mouse_down && moved)
   {
-    if(stroke_data.length < 6 || !mouse_down_last_frame)
+    if(stroke_data.length < 6 || !prev_mouse_down)
     {
-      stroke_data.push(proxy_mouse.x);
-      stroke_data.push(-proxy_mouse.y);
-      stroke_data.push(proxy_mouse.x);
-      stroke_data.push(-proxy_mouse.y);
-      stroke_data.push(proxy_mouse.x);
-      stroke_data.push(-proxy_mouse.y);
+      stroke_data.push(worldspace_mousepos[0]);
+      stroke_data.push(worldspace_mousepos[1]);
+      stroke_data.push(worldspace_mousepos[0]);
+      stroke_data.push(worldspace_mousepos[1]);
+      stroke_data.push(worldspace_mousepos[0]);
+      stroke_data.push(worldspace_mousepos[1]);
     }
     else
     {
-      stroke_data.push(old_mouse_proxy.x + old_adj.x);
-      stroke_data.push(-old_mouse_proxy.y + old_adj.y);
-      stroke_data.push(proxy_mouse.x + adj.x);
-      stroke_data.push(-proxy_mouse.y + adj.y);
-      stroke_data.push(proxy_mouse.x - adj.x);
-      stroke_data.push(-proxy_mouse.y - adj.y);
+      stroke_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
+      stroke_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_data.push(worldspace_mousepos[0] + adj[0]);
+      stroke_data.push(worldspace_mousepos[1] + adj[1]);
+      stroke_data.push(worldspace_mousepos[0] - adj[0]);
+      stroke_data.push(worldspace_mousepos[1] - adj[1]);
 
-      stroke_data.push(old_mouse_proxy.x + old_adj.x);
-      stroke_data.push(-old_mouse_proxy.y + old_adj.y);
-      stroke_data.push(proxy_mouse.x - adj.x);
-      stroke_data.push(-proxy_mouse.y - adj.y);
-      stroke_data.push(old_mouse_proxy.x - old_adj.x);
-      stroke_data.push(-old_mouse_proxy.y - old_adj.y);
+      stroke_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
+      stroke_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_data.push(worldspace_mousepos[0] - adj[0]);
+      stroke_data.push(worldspace_mousepos[1] - adj[1]);
+      stroke_data.push(prev_worldspace_mousepos[0] - prev_adj[0]);
+      stroke_data.push(prev_worldspace_mousepos[1] - prev_adj[1]);
     }
-    //old_draw_pos = {x: proxy_mouse.x, y:proxy_mouse.y };
-    old_adj = {x:adj.x, y:adj.y};
-    old_mouse_proxy = {x:proxy_mouse.x, y:proxy_mouse.y};
+    prev_adj = vec2.clone(adj);
+    prev_worldspace_mousepos = vec2.clone(worldspace_mousepos);
   }
-  mouse_down_last_frame = mouse_down;
+  prev_mouse_down = mouse_down;
 
   gl.bufferData(
   gl.ARRAY_BUFFER,
   new Float32Array(stroke_data),
   gl.STATIC_DRAW
-)
+  )
+}
 
-
-  //===============<<DRAWING STUFF>>===================//
+function Draw()
+{
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  //get inverse of camera view matrix
-  let temp_camera_mat = mat4.create();
-  mat4.invert(temp_camera_mat, camera_view_mat);
-
+  gl.useProgram(shader_program_2);
+  gl.enableVertexAttribArray(pos_attrib_loc_2);
   gl.bindBuffer(gl.ARRAY_BUFFER, cube_position_buffer);
   gl.vertexAttribPointer(pos_attrib_loc_2, 3, gl.FLOAT, false, 0, 0);
+  let clipspace_matrix = mat4.create();
+  mat4.multiply(clipspace_matrix, world_to_clip, cube_model_mat);
+  gl.uniformMatrix4fv(matrix_2, false, clipspace_matrix);
+  gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
 
-  gl.useProgram(cube_shader_program);
-
-  //use matrices to go from world space to clipspace
-  mat4.multiply(current_MV_matr, temp_camera_mat, cube_model_mat);
-  mat4.multiply(currentMVP_matr, camera_proj_mat, current_MV_matr);
-
-  //tell webgl to use these matrices when rendering the object
-  gl.uniformMatrix4fv(cube_matrix_uniform, false, currentMVP_matr);
-
-  //draw this object with current selected shader program
-  //gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
-
-  gl.useProgram(shader_program_2);
-
-  //use matrices to go from world space to clipspace
-  mat4.multiply(current_MV_matr, temp_camera_mat, mouse_model_matr);
-  mat4.multiply(currentMVP_matr, camera_proj_mat, current_MV_matr);
-
-  //tell webgl to use these matrices when rendering the object
-  gl.uniformMatrix4fv(matrix_2, false, currentMVP_matr);
-
-  //draw this object with current selected shader program
-  //gl.drawArrays(gl.TRIANGLES, 0, cube_vertex_data.length / 3);
-
-  gl.enableVertexAttribArray(cube_pos_attrib_loc);
-
+  gl.enableVertexAttribArray(pos_attrib_loc_2);
   gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
   gl.vertexAttribPointer(pos_attrib_loc_2, 2, gl.FLOAT, false, 0, 0);
-  
-  gl.uniformMatrix4fv(matrix_2, false, mat4.create());
-
+  gl.uniformMatrix4fv(matrix_2, false, world_to_clip);
   gl.drawArrays(gl.TRIANGLES, 0, stroke_data.length / 2);
+}
+
+//define the update loop
+function FrameUpdate()
+{
+  Update();
+  Draw();
 
   //request to run this function again on the next animation frame
-  requestAnimationFrame(animate);
+  requestAnimationFrame(FrameUpdate);
 }
 
 //event listener to correctly resize the webgl canvas
@@ -371,14 +356,20 @@ window.addEventListener("resize", () => {
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
   gl.viewport(0, 0, canvas.width, canvas.height);
-  mat4.perspective(
-    camera_proj_mat,
-    Math.PI / 2,
-    canvas.width / canvas.height,
-    0.03,
-    1000
-  );
+  pixel_to_clip = mat4.create();
+  mat4.scale(pixel_to_clip, pixel_to_clip, [canvas.width/2,-canvas.height/2,1]);
+  mat4.translate(pixel_to_clip, pixel_to_clip, [1,-1,0]);
+  mat4.invert(pixel_to_clip, pixel_to_clip);
+
+  let temp = [clip_to_world[12],clip_to_world[13],clip_to_world[14]];//preserve camera position
+  let old_scale = [clip_to_world[0], clip_to_world[5]];
+
+  clip_to_world = mat4.create();
+  mat4.scale(clip_to_world, clip_to_world, [canvas.width/2, canvas.height/2, 1]);
+  clip_to_world[12] = temp[0];
+  clip_to_world[13] = temp[1];
+  clip_to_world[14] = temp[2];
 });
 
 //start the animation loop
-animate();
+FrameUpdate();

@@ -1,6 +1,7 @@
 #glcanvas {
   image-rendering: pixelated;
   z-index: 0;
+  touch-action: none;
 }
 * {
   margin: 0;
