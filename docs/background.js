@@ -1,9 +1,21 @@
 // on load of the page, clear the textarea
 document.getElementById("input").value = "";
 
+// set the background of the page to a light green
+document.body.style.backgroundColor = "#d1f2eb";
+// slightly darker green:
+
+// hide the non-default divs
+document.getElementById("drawingDiv").style.display = "none";
+document.getElementById("checkListDiv").style.display = "none";
+
+// create a script element so we only draw when the user wants to
+var script = document.createElement("script");
+script.src = "webgl-demo.js";
+
 // listen for the click event on the text area with the id 'input'
 document.getElementById("input").addEventListener("click", function () {
-  // clear the textarea 
+  // clear the textarea
   document.getElementById("input").value = "";
   // hide the buttons with id 'newDrawingButton' and 'newCheckBoxButton'
   document.getElementById("newDrawingButton").style.display = "none";
@@ -46,3 +58,36 @@ document.getElementById("input").addEventListener("blur", function () {
   document.getElementById("newDrawingButton").style.display = "block";
   document.getElementById("newCheckBoxButton").style.display = "block";
 });
+
+// when we start creating a new drawing:
+document
+  .getElementById("newDrawingButton")
+  .addEventListener("click", function () {
+    document.getElementById("defaultDiv").style.display = "none";
+    document.getElementById("drawingDiv").style.display = "block";
+    // append the script file "webgl-demo.js" to the body
+    document.body.appendChild(script);
+  });
+
+document.getElementById("saveDrawing").addEventListener("click", function () {
+  // TODO: figure out how to save the drawing so it can be retrieved later
+  document.getElementById("defaultDiv").style.display = "block";
+  document.getElementById("drawingDiv").style.display = "none";
+  // remove the script file "webgl-demo.js" from the body
+  document.body.removeChild(script);
+  // refresh the page to clear the canvas
+  location.reload();
+});
+
+document.getElementById("saveCheckList").addEventListener("click", function () {
+  document.getElementById("defaultDiv").style.display = "block";
+  document.getElementById("checkListDiv").style.display = "none";
+});
+
+// when we start creating a new checklist:
+document
+  .getElementById("newCheckBoxButton")
+  .addEventListener("click", function () {
+    document.getElementById("defaultDiv").style.display = "none";
+    document.getElementById("checkListDiv").style.display = "block";
+  });
