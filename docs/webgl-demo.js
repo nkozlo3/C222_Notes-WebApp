@@ -99,6 +99,10 @@ window.addEventListener('keypress', function (e) {
   {
     drawing_tool = !drawing_tool;
   }
+  if(e.key == '3')
+  {
+    pixel_brush_color = [Math.random(), Math.random(), Math.random()];
+  }
 }, false);
 
 //vertex shader
@@ -180,9 +184,21 @@ precision mediump float;
 varying vec2 uv;
 uniform sampler2D u_texture;
 
+uniform vec2 page_resolution;
+uniform vec2 mouse_pos;
+
 void main()
 {
-  gl_FragColor = vec4(texture2D(u_texture, uv).xyz, 1);
+  vec2 UV = uv * page_resolution;
+  vec3 col = texture2D(u_texture, uv).xyz;
+  if(length(UV - mouse_pos) < 4.)
+  {
+    if(length(UV - mouse_pos) > 3.)
+    {
+      col = vec3(1) - col;
+    }
+  }
+  gl_FragColor = vec4(col, 1);
 }
 `
 );
@@ -207,6 +223,8 @@ gl.vertexAttribPointer(sheet_uv_attrib, 2, gl.FLOAT, false, 0, 0);
 
 //uniforms
 let sheet_matrix_uniform = gl.getUniformLocation(sheet_shader_program, "matrix");
+let sheet_mouse_pos_uniform = gl.getUniformLocation(sheet_shader_program, "mouse_pos");
+let sheet_page_resolution_uniform = gl.getUniformLocation(sheet_shader_program, "page_resolution");
 
 
 
@@ -246,10 +264,12 @@ gl.shaderSource(pixel_sheet_fragment_shader,
 `
 precision mediump float;
 uniform vec3 color;
-varying vec2 uv;
-
+uniform sampler2D u_texture;
 uniform vec2 cursor_pos;
 uniform vec2 prev_cursor_pos;
+uniform bool mouse_down;
+
+varying vec2 uv;
 
 float sdf_circle(vec2 p, vec2 c, float r)
 {
@@ -269,7 +289,14 @@ void main()
 {
   float dist = sdf_cap(gl_FragCoord.xy, prev_cursor_pos, cursor_pos, 3. - 0.5);
   dist = 1. - dist;
-  gl_FragColor = vec4(color, dist);
+  dist = clamp(dist, 0., 1.);
+  vec3 input_color = texture2D(u_texture, uv).xyz;
+  vec3 col = input_color;
+  if(mouse_down)
+  {
+    col = mix(input_color, color, dist);
+  }
+  gl_FragColor = vec4(col, 1.);
 }
 `
 );
@@ -291,12 +318,12 @@ gl.enableVertexAttribArray(pixel_sheet_uv_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_uv_buffer);
 gl.vertexAttribPointer(pixel_sheet_uv_attrib, 2, gl.FLOAT, false, 0, 0);
 
-
 //uniforms - these are in the vertex and fragment shader
 let pixel_sheet_matrix_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "matrix");
 let pixel_sheet_color_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "color");
 let pixel_sheet_cursor_pos_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "cursor_pos");
 let pixel_sheet_prev_cursor_pos_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "prev_cursor_pos");
+let pixel_sheet_mouse_down_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "mouse_down");
 //================================================================================================================================================
 
 
@@ -313,37 +340,45 @@ let pixel_sheet_prev_cursor_pos_uniform = gl.getUniformLocation(pixel_sheet_shad
 
 
 
+// create render texture
+const frame_buffer_width = 800;
+const frame_buffer_height = 600;
+let pixel_drawing_texture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, pixel_drawing_texture);
+// define size and format of level 0
+const level = 0;
+const internalFormat = gl.RGBA;
+const border = 0;
+const format = gl.RGBA;
+const type = gl.UNSIGNED_BYTE;
+const data = null;
+gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, frame_buffer_width, frame_buffer_height, border, format, type, data);
+// set the filtering so we don't need mips
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+// Create and bind the framebuffer
+const fb = gl.createFramebuffer();
+gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+// attach the texture as the first color attachment
+const attachmentPoint = gl.COLOR_ATTACHMENT0;
+gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, pixel_drawing_texture, level);
+gl.clearColor(1,1,1, 1.0);
+gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-// create to render to
-const frame_buffer_width = canvas.width;
-const frame_buffer_height = canvas.height;
-const render_texture = gl.createTexture();
-gl.bindTexture(gl.TEXTURE_2D, render_texture);
+// create a buffere to hold the pixel data from the render texture
+let pixel_image_buffer = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, pixel_image_buffer);
+// define size and format of level 0
+gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, frame_buffer_width, frame_buffer_height, border, format, type, data);
+// set the filtering so we don't need mips
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-  // define size and format of level 0
-  const level = 0;
-  const internalFormat = gl.RGBA;
-  const border = 0;
-  const format = gl.RGBA;
-  const type = gl.UNSIGNED_BYTE;
-  const data = null;
-  gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, frame_buffer_width, frame_buffer_height, border, format, type, data);
- 
-  // set the filtering so we don't need mips
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-  // Create and bind the framebuffer
-  const fb = gl.createFramebuffer();
-  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
-  
-  // attach the texture as the first color attachment
-  const attachmentPoint = gl.COLOR_ATTACHMENT0;
-  gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, render_texture, level);
-
-
+//deactivate the framebuffer
 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
@@ -361,13 +396,9 @@ image.addEventListener('load', function() {
 });
 
 //initialize matrices
-let square_model_mat = mat4.create();
-mat4.translate(square_model_mat, square_model_mat, [0, 300, 0]);
-mat4.scale(square_model_mat, square_model_mat, [50,50,1]);
-
 let sheet_transform_matrix = mat4.create();
-mat4.translate(sheet_transform_matrix, sheet_transform_matrix, [0, 0, 0.9]);
-mat4.scale(sheet_transform_matrix, sheet_transform_matrix, [canvas.width, canvas.height, 1]);
+mat4.translate(sheet_transform_matrix, sheet_transform_matrix, [0, 0, 0.999999]);
+mat4.scale(sheet_transform_matrix, sheet_transform_matrix, [frame_buffer_width, frame_buffer_height, 1]);
 
 let pixel_to_clip = mat4.create();
 mat4.scale(pixel_to_clip, pixel_to_clip, [canvas.width/2,-canvas.height/2,1]);
@@ -376,6 +407,7 @@ mat4.invert(pixel_to_clip, pixel_to_clip);
 
 let clip_to_world = mat4.create();
 mat4.scale(clip_to_world, clip_to_world, [canvas.width/2, canvas.height/2, 1]);
+
 window.addEventListener('keypress', function (e) {
   if (e.key == '1')
   {
@@ -391,7 +423,7 @@ let world_to_clip = mat4.create();
 gl.enable(gl.DEPTH_TEST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-gl.clearColor(0.13, 0.15, 0.2, 1.0);
+gl.clearColor(0.6, 0.65, 0.7, 1.0);
 gl.enable(gl.BLEND);
 gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 let time = 0;
@@ -400,6 +432,9 @@ let prev_worldspace_mousepos = vec2.create();
 let prev_adj = vec2.create();
 let worldspace_mousepos = vec2.create();
 let drawing_tool = 0;
+let pixel_brush_color = [0,0,0];
+let pixel_cursor = vec2.create();
+let prev_pixel_cursor = vec2.create();
 
 //update function
 function Update()
@@ -427,10 +462,6 @@ function Update()
   worldspace_mousepos = vec2.clone(mouse_pos);
   vec2.transformMat4(worldspace_mousepos, worldspace_mousepos, pixel_to_clip);
   vec2.transformMat4(worldspace_mousepos, worldspace_mousepos, clip_to_world);
-
-  square_model_mat[12] = worldspace_mousepos[0];
-  square_model_mat[13] = worldspace_mousepos[1];
-  mat4.rotateZ(square_model_mat, square_model_mat, 0.02);
 
   //brush stroke geometry generation
   let adj = vec2.create();
@@ -474,42 +505,43 @@ function Update()
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(stroke_data), gl.STATIC_DRAW);
 }
 
-let pixel_cursor = vec2.create();
-let prev_pixel_cursor = vec2.create();
 //drawing function
 function Draw()
 {
-  //draw to the framebuffer:
-  gl.bindTexture(gl.TEXTURE_2D, sheet_texture);
+  //draw to the framebuffer pixels
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.bindTexture(gl.TEXTURE_2D, pixel_image_buffer);
+  gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, frame_buffer_width, frame_buffer_height, 0);
   gl.viewport(0, 0, frame_buffer_width, frame_buffer_height);
 
+  gl.clearColor(1,0,1,1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
   gl.useProgram(pixel_sheet_shader_program);
-
-  gl.uniform3fv(pixel_sheet_color_uniform, [0.6,1,0.6]);
-
+  gl.uniform3fv(pixel_sheet_color_uniform, pixel_brush_color);
   gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
   gl.vertexAttribPointer(pixel_sheet_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
-  gl.uniformMatrix4fv(pixel_sheet_matrix_uniform, false, clip_to_world);
-  pixel_cursor = vec2.fromValues((worldspace_mousepos[0] + canvas.width)/2, (worldspace_mousepos[1] + canvas.height)/2);
+  gl.uniformMatrix4fv(pixel_sheet_matrix_uniform, false, mat4.create());
+  pixel_cursor = vec2.fromValues((worldspace_mousepos[0] + frame_buffer_width)/2, (worldspace_mousepos[1] + frame_buffer_height)/2);
   gl.uniform2fv(pixel_sheet_cursor_pos_uniform, pixel_cursor);
   gl.uniform2fv(pixel_sheet_prev_cursor_pos_uniform, prev_pixel_cursor);
+  gl.uniform1i(pixel_sheet_mouse_down_uniform, mouse_down && drawing_tool == 0);
   prev_pixel_cursor = vec2.fromValues(pixel_cursor[0], pixel_cursor[1]);
-  if(mouse_down && drawing_tool == 0)
-  {
-    gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
-  }
+  gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
   //draw to the actual screen:
-
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  gl.bindTexture(gl.TEXTURE_2D, render_texture);
+  gl.bindTexture(gl.TEXTURE_2D, pixel_drawing_texture);
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
+  gl.clearColor(0.6, 0.65, 0.7, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.useProgram(sheet_shader_program);
+
+  gl.uniform2fv(sheet_page_resolution_uniform, [frame_buffer_width, frame_buffer_height]);
+  gl.uniform2fv(sheet_mouse_pos_uniform, pixel_cursor);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
   gl.vertexAttribPointer(sheet_position_attrib, 3, gl.FLOAT, false, 0, 0);
@@ -519,21 +551,14 @@ function Draw()
   gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
   gl.useProgram(brush_stroke_shader_program);
-  gl.uniform4fv(brush_stroke_color_uniform, [0,1,1,0.2]);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
-  gl.vertexAttribPointer(brush_stroke_position_attrib, 3, gl.FLOAT, false, 0, 0);
-  let clipspace_matrix = mat4.create();
-  mat4.multiply(clipspace_matrix, world_to_clip, square_model_mat);
-  gl.uniformMatrix4fv(brush_stroke_matrix_uniform, false, clipspace_matrix);
-  //gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
-
-  gl.uniform4fv(brush_stroke_color_uniform, [1,0.6,1,1]);
+  gl.uniform4fv(brush_stroke_color_uniform, [0.5,0.5,0.5,1]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
   gl.vertexAttribPointer(brush_stroke_position_attrib, 2, gl.FLOAT, false, 0, 0);
   gl.uniformMatrix4fv(brush_stroke_matrix_uniform, false, world_to_clip);
   gl.drawArrays(gl.TRIANGLES, 0, stroke_data.length / 2);
+  gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
 //define the update loop
@@ -541,8 +566,6 @@ function FrameUpdate()
 {
   Update();
   Draw();
-
-  //request to run this function again on the next animation frame
   requestAnimationFrame(FrameUpdate);
 }
 
@@ -565,5 +588,5 @@ window.addEventListener("resize", () => {
   clip_to_world[14] = temp[2];
 });
 
-//start the animation loop
+//start the update loop
 FrameUpdate();
