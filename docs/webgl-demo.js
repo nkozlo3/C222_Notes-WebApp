@@ -1,3 +1,5 @@
+console.log("Pixel ratio:", window.devicePixelRatio);
+
 //keep track of the mouse stuff
 let mouse_pos = vec2.create();
 let mouse_down = false;
@@ -83,17 +85,17 @@ gl.bufferData(
   gl.STATIC_DRAW
 );
 
-//the geometry of the pencil strokes
-let stroke_data = [];
+//the geometry of the pencil strokes (cpu)
+let stroke_vertex_data = [];
 
-//buffer for the pencil strokes - for webgl
-let pencil_stroke_buffer = gl.createBuffer();
+//buffer for the pencil strokes - for webgl (gpu)
+let stroke_vertex_buffer = gl.createBuffer();
 
 //clear the drawing on spacebar pressed
 window.addEventListener('keypress', function (e) {
   if (e.key == ' ')
   {
-    stroke_data = [];
+    stroke_vertex_data = [];
   }
   if (e.key == '2')
   {
@@ -106,9 +108,9 @@ window.addEventListener('keypress', function (e) {
 }, false);
 
 //vertex shader
-let brush_stroke_vert = gl.createShader(gl.VERTEX_SHADER);
+let solid_color_VS = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(
-  brush_stroke_vert,
+  solid_color_VS,
 `
 precision mediump float;
 attribute vec3 position;
@@ -120,12 +122,12 @@ void main()
 }
 `
 );
-gl.compileShader(brush_stroke_vert);
+gl.compileShader(solid_color_VS);
 
 //fragment shader
-let brush_stroke_fragm = gl.createShader(gl.FRAGMENT_SHADER);
+let solid_color_FS = gl.createShader(gl.FRAGMENT_SHADER);
 gl.shaderSource(
-  brush_stroke_fragm,
+  solid_color_FS,
 `
 precision mediump float;
 uniform vec4 color;
@@ -136,23 +138,23 @@ void main()
 }
 `
 );
-gl.compileShader(brush_stroke_fragm);
+gl.compileShader(solid_color_FS);
 
 //link the shader program
-let brush_stroke_shader_program = gl.createProgram();
-gl.attachShader(brush_stroke_shader_program, brush_stroke_vert);
-gl.attachShader(brush_stroke_shader_program, brush_stroke_fragm);
-gl.linkProgram(brush_stroke_shader_program);
+let solid_color_shader_program = gl.createProgram();
+gl.attachShader(solid_color_shader_program, solid_color_VS);
+gl.attachShader(solid_color_shader_program, solid_color_FS);
+gl.linkProgram(solid_color_shader_program);
 
 //attributes - these are in the vertex shader
-let brush_stroke_position_attrib = gl.getAttribLocation(brush_stroke_shader_program, "position");
-gl.enableVertexAttribArray(brush_stroke_position_attrib);
+let solid_color_vertex_attrib = gl.getAttribLocation(solid_color_shader_program, "position");
+gl.enableVertexAttribArray(solid_color_vertex_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
-gl.vertexAttribPointer(brush_stroke_position_attrib, 3, gl.FLOAT, false, 0, 0);
+gl.vertexAttribPointer(solid_color_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
 
 //uniforms - these are in the vertex and fragment shader
-let brush_stroke_matrix_uniform = gl.getUniformLocation(brush_stroke_shader_program, "matrix");
-let brush_stroke_color_uniform = gl.getUniformLocation(brush_stroke_shader_program, "color");
+let solid_color_matrix_uniform = gl.getUniformLocation(solid_color_shader_program, "matrix");
+let solid_color_color_uniform = gl.getUniformLocation(solid_color_shader_program, "color");
 
 
 //vertex shader
@@ -227,20 +229,9 @@ let sheet_mouse_pos_uniform = gl.getUniformLocation(sheet_shader_program, "mouse
 let sheet_page_resolution_uniform = gl.getUniformLocation(sheet_shader_program, "page_resolution");
 
 
-
-
-
-
-
-
-
-
-
-
-//===================================================================================================================================
 //vertex shader
-let pixel_sheet_vertex_shader = gl.createShader(gl.VERTEX_SHADER);
-gl.shaderSource(pixel_sheet_vertex_shader,
+let pixel_drawer_vertex_shader = gl.createShader(gl.VERTEX_SHADER);
+gl.shaderSource(pixel_drawer_vertex_shader,
 `
 precision mediump float;
 attribute vec3 position;
@@ -256,11 +247,11 @@ void main()
 }
 `
 );
-gl.compileShader(pixel_sheet_vertex_shader);
+gl.compileShader(pixel_drawer_vertex_shader);
 
 //fragment shader
-let pixel_sheet_fragment_shader = gl.createShader(gl.FRAGMENT_SHADER);
-gl.shaderSource(pixel_sheet_fragment_shader,
+let pixel_drawer_fragment_shader = gl.createShader(gl.FRAGMENT_SHADER);
+gl.shaderSource(pixel_drawer_fragment_shader,
 `
 precision mediump float;
 uniform vec3 color;
@@ -300,45 +291,30 @@ void main()
 }
 `
 );
-gl.compileShader(pixel_sheet_fragment_shader);
+gl.compileShader(pixel_drawer_fragment_shader);
 
 //link the shader program
-let pixel_sheet_shader_program = gl.createProgram();
-gl.attachShader(pixel_sheet_shader_program, pixel_sheet_vertex_shader);
-gl.attachShader(pixel_sheet_shader_program, pixel_sheet_fragment_shader);
-gl.linkProgram(pixel_sheet_shader_program);
+let pixel_drawer_shader_program = gl.createProgram();
+gl.attachShader(pixel_drawer_shader_program, pixel_drawer_vertex_shader);
+gl.attachShader(pixel_drawer_shader_program, pixel_drawer_fragment_shader);
+gl.linkProgram(pixel_drawer_shader_program);
 
 //attributes - these are in the vertex shader
-let pixel_sheet_vertex_attrib = gl.getAttribLocation(pixel_sheet_shader_program, "position");
-gl.enableVertexAttribArray(pixel_sheet_vertex_attrib);
+let pixel_drawer_vertex_attrib = gl.getAttribLocation(pixel_drawer_shader_program, "position");
+gl.enableVertexAttribArray(pixel_drawer_vertex_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
-gl.vertexAttribPointer(pixel_sheet_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
-let pixel_sheet_uv_attrib = gl.getAttribLocation(pixel_sheet_shader_program, "uv_coord");
-gl.enableVertexAttribArray(pixel_sheet_uv_attrib);
+gl.vertexAttribPointer(pixel_drawer_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
+let pixel_drawer_uv_attrib = gl.getAttribLocation(pixel_drawer_shader_program, "uv_coord");
+gl.enableVertexAttribArray(pixel_drawer_uv_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_uv_buffer);
-gl.vertexAttribPointer(pixel_sheet_uv_attrib, 2, gl.FLOAT, false, 0, 0);
+gl.vertexAttribPointer(pixel_drawer_uv_attrib, 2, gl.FLOAT, false, 0, 0);
 
 //uniforms - these are in the vertex and fragment shader
-let pixel_sheet_matrix_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "matrix");
-let pixel_sheet_color_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "color");
-let pixel_sheet_cursor_pos_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "cursor_pos");
-let pixel_sheet_prev_cursor_pos_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "prev_cursor_pos");
-let pixel_sheet_mouse_down_uniform = gl.getUniformLocation(pixel_sheet_shader_program, "mouse_down");
-//================================================================================================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+let pixel_drawer_matrix_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "matrix");
+let pixel_drawer_color_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "color");
+let pixel_drawer_cursor_pos_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "cursor_pos");
+let pixel_drawer_prev_cursor_pos_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "prev_cursor_pos");
+let pixel_drawer_mouse_down_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "mouse_down");
 
 // create render texture
 const frame_buffer_width = 800;
@@ -472,37 +448,37 @@ function Update()
   let moved = Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) + Math.abs(worldspace_mousepos[1] - prev_worldspace_mousepos[1]) > 0;
   if(mouse_down && moved && drawing_tool == 1)
   {
-    if(stroke_data.length < 6 || !prev_mouse_down)
+    if(stroke_vertex_data.length < 6 || !prev_mouse_down)
     {
-      stroke_data.push(worldspace_mousepos[0]);
-      stroke_data.push(worldspace_mousepos[1]);
-      stroke_data.push(worldspace_mousepos[0]);
-      stroke_data.push(worldspace_mousepos[1]);
-      stroke_data.push(worldspace_mousepos[0]);
-      stroke_data.push(worldspace_mousepos[1]);
+      stroke_vertex_data.push(worldspace_mousepos[0]);
+      stroke_vertex_data.push(worldspace_mousepos[1]);
+      stroke_vertex_data.push(worldspace_mousepos[0]);
+      stroke_vertex_data.push(worldspace_mousepos[1]);
+      stroke_vertex_data.push(worldspace_mousepos[0]);
+      stroke_vertex_data.push(worldspace_mousepos[1]);
     }
     else
     {
-      stroke_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
-      stroke_data.push(worldspace_mousepos[0] + adj[0]);
-      stroke_data.push(worldspace_mousepos[1] + adj[1]);
-      stroke_data.push(worldspace_mousepos[0] - adj[0]);
-      stroke_data.push(worldspace_mousepos[1] - adj[1]);
+      stroke_vertex_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
+      stroke_vertex_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_vertex_data.push(worldspace_mousepos[0] + adj[0]);
+      stroke_vertex_data.push(worldspace_mousepos[1] + adj[1]);
+      stroke_vertex_data.push(worldspace_mousepos[0] - adj[0]);
+      stroke_vertex_data.push(worldspace_mousepos[1] - adj[1]);
 
-      stroke_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
-      stroke_data.push(worldspace_mousepos[0] - adj[0]);
-      stroke_data.push(worldspace_mousepos[1] - adj[1]);
-      stroke_data.push(prev_worldspace_mousepos[0] - prev_adj[0]);
-      stroke_data.push(prev_worldspace_mousepos[1] - prev_adj[1]);
+      stroke_vertex_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
+      stroke_vertex_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_vertex_data.push(worldspace_mousepos[0] - adj[0]);
+      stroke_vertex_data.push(worldspace_mousepos[1] - adj[1]);
+      stroke_vertex_data.push(prev_worldspace_mousepos[0] - prev_adj[0]);
+      stroke_vertex_data.push(prev_worldspace_mousepos[1] - prev_adj[1]);
     }
     prev_adj = vec2.clone(adj);
     prev_worldspace_mousepos = vec2.clone(worldspace_mousepos);
   }
   prev_mouse_down = mouse_down;
 
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(stroke_data), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(stroke_vertex_data), gl.STATIC_DRAW);
 }
 
 //drawing function
@@ -517,15 +493,15 @@ function Draw()
   gl.clearColor(1,0,1,1);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  gl.useProgram(pixel_sheet_shader_program);
-  gl.uniform3fv(pixel_sheet_color_uniform, pixel_brush_color);
+  gl.useProgram(pixel_drawer_shader_program);
+  gl.uniform3fv(pixel_drawer_color_uniform, pixel_brush_color);
   gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
-  gl.vertexAttribPointer(pixel_sheet_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
-  gl.uniformMatrix4fv(pixel_sheet_matrix_uniform, false, mat4.create());
+  gl.vertexAttribPointer(pixel_drawer_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
+  gl.uniformMatrix4fv(pixel_drawer_matrix_uniform, false, mat4.create());
   pixel_cursor = vec2.fromValues((worldspace_mousepos[0] + frame_buffer_width)/2, (worldspace_mousepos[1] + frame_buffer_height)/2);
-  gl.uniform2fv(pixel_sheet_cursor_pos_uniform, pixel_cursor);
-  gl.uniform2fv(pixel_sheet_prev_cursor_pos_uniform, prev_pixel_cursor);
-  gl.uniform1i(pixel_sheet_mouse_down_uniform, mouse_down && drawing_tool == 0);
+  gl.uniform2fv(pixel_drawer_cursor_pos_uniform, pixel_cursor);
+  gl.uniform2fv(pixel_drawer_prev_cursor_pos_uniform, prev_pixel_cursor);
+  gl.uniform1i(pixel_drawer_mouse_down_uniform, mouse_down && drawing_tool == 0);
   prev_pixel_cursor = vec2.fromValues(pixel_cursor[0], pixel_cursor[1]);
   gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
@@ -535,7 +511,7 @@ function Draw()
 
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
-  gl.clearColor(0.6, 0.65, 0.7, 1.0);
+  gl.clearColor(0.8, 0.8, 0.8, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.useProgram(sheet_shader_program);
@@ -550,14 +526,14 @@ function Draw()
   gl.uniformMatrix4fv(sheet_matrix_uniform, false, tempyy);
   gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
-  gl.useProgram(brush_stroke_shader_program);
+  gl.useProgram(solid_color_shader_program);
 
-  gl.uniform4fv(brush_stroke_color_uniform, [0.5,0.5,0.5,1]);
+  gl.uniform4fv(solid_color_color_uniform, [0.5,0.5,0.5,1]);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, pencil_stroke_buffer);
-  gl.vertexAttribPointer(brush_stroke_position_attrib, 2, gl.FLOAT, false, 0, 0);
-  gl.uniformMatrix4fv(brush_stroke_matrix_uniform, false, world_to_clip);
-  gl.drawArrays(gl.TRIANGLES, 0, stroke_data.length / 2);
+  gl.bindBuffer(gl.ARRAY_BUFFER, stroke_vertex_buffer);
+  gl.vertexAttribPointer(solid_color_vertex_attrib, 2, gl.FLOAT, false, 0, 0);
+  gl.uniformMatrix4fv(solid_color_matrix_uniform, false, world_to_clip);
+  gl.drawArrays(gl.TRIANGLES, 0, stroke_vertex_data.length / 2);
   gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
