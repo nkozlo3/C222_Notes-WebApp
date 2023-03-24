@@ -25,3 +25,22 @@ ul li:nth-child(odd) {
 ul li:hover {
   background: grey;
 }
+
+/*close button */
+.close {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  padding: 12px 16px 12px 16px;
+  border: black;
+}
+/* On hover, change color to red */
+.close:hover {
+  cursor: pointer;
+  color: white;
+  background-color: black;
+}
+.close:active {
+  box-shadow: 2px 2px 5px red;
+}
