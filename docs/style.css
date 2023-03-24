@@ -90,6 +90,26 @@
   box-shadow: 2px 2px 5px #0a908d;
 }
 
+#clearStorage {
+  z-index: 2;
+  background-color: transparent;
+  position: absolute;
+  width: 5%;
+  height: 4%;
+  top: 92.35%;
+  left: 5%;
+  z-index: 1;
+  background-color: transparent;
+  font-size: 75%;
+}
+#clearStorage:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#clearStorage:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+
 .standardSave {
   z-index: 2;
   background-color: transparent;
@@ -107,7 +127,7 @@
 .standardSave:active {
   box-shadow: 2px 2px 5px #0a908d;
 }
-=======
+
 /* for the whiteboard page */
 .whiteboard {
   height: 100%;
