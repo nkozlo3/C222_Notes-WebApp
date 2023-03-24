@@ -1,0 +1,32 @@
+/* for the whiteboard page */
+.whiteboard {
+  height: 90%;
+  width: 90%;
+  position: absolute; /* position the whiteboard relative to its nearest positioned ancestor (in this case, the body element) */
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border: 5px solid #000000;
+}
+
+.buttons {
+  position: sticky;
+  left: 0;
+  top: 0;
+}
+
+.btn {
+  font-size: 14px;
+  padding: 5px 10px;
+  text-decoration: none;
+  cursor: pointer;
+  background-color: white;
+  color: black;
+  border: 5px solid #555555;
+}
+
+.ColorWheel {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
