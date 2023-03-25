@@ -2,43 +2,31 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Whiteboard App</title>
-    <link href="whiteboard-demo.css" rel="stylesheet" />
+    <title>Whiteboard</title>
+    <link id="STYLE_" href="whiteboard-demo.css" type="text/html" />
   </head>
   <body>
-    <div class="wrapper">
-      <div class="sidebar">
-        <h2>Options</h2>
-        <ul>
-          <li><a href="#">Paint</a></li>
-          <li><a href="#">Notes</a></li>
-          <li><a href="#">List</a></li>
-        </ul>
-      </div>
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+    <script src="whiteboard-demo.js" type="module" defer></script>
 
-      <div class="main">
-        <h1>Whiteboard App</h1>
-        <canvas id="whiteboardCanvas" class="whiteboard"></canvas>
+    <canvas id="whiteboardCanvas" class="whiteboard"></canvas>
 
-        <div class="buttons">
-          <button id="clear-btn" class="btn" type="button">Clear</button>
-          <button id="eraser-btn" class="btn" type="button">
-            Switch to Eraser
-          </button>
-          <button id="paintbrush-btn" class="btn" type="button">
-            Switch to Paintbrush
-          </button>
-          <button id="brush-size-btn" class="btn" type="button">
-            Increase brush/eraser size by 10px
-          </button>
-        </div>
-
-        <div class="ColorWheel" id="wheelPicker"></div>
-
-        <!-- -div and script is for the color picker
-            <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
-            <div class="ColorPicker" id="colorPicker"></div> -->
-      </div>
+    <div class="buttons">
+      <button id="clear-btn" class="btn" type="button">Clear</button>
+      <button id="eraser-btn" class="btn" type="button">
+        Switch to Eraser
+      </button>
+      <button id="paintbrush-btn" class="btn" type="button">
+        Switch to Paintbrush
+      </button>
+      <button id="brush-size-btn" class="btn" type="button">
+        Increase brush/eraser size by 10px
+      </button>
     </div>
+    <div class="ColorWheel" id="wheelPicker"></div>
+
+    <!-- -div and script is for the color picker
+        <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+        <div class="ColorPicker" id="colorPicker"></div> -->
   </body>
 </html>
