@@ -129,3 +129,10 @@
 .standardSave:active {
   box-shadow: 2px 2px 5px #0a908d;
 }
+
+.wheelPicker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
