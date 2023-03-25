@@ -580,25 +580,6 @@ function Update() {
 
 //drawing function
 function Draw() {
-  //change the color of pixel_brush_color if the the person changes the color on the wheel
-  //color picker
-  var colorPicker = new window.iro.ColorPicker("#colorPicker", {
-    width: 100,
-    color: "rgb(255, 0, 0)",
-    borderWidth: 1,
-    borderColor: "#fff",
-    layout: [
-      {
-        component: iro.ui.Wheel,
-      },
-    ],
-  });
-  //event listener
-  colorPicker.on("color:change", function (color1) {
-    // change current color to hexwheel
-    pixel_brush_color.color = [color1.r, color1.g, color1.b];
-  });
-
   //draw to the framebuffer pixels
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
   gl.bindTexture(gl.TEXTURE_2D, pixel_image_buffer);
