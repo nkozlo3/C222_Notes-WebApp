@@ -33,6 +33,27 @@ window.addEventListener("wheel", (event) =>
   }
 });
 
+
+document.getElementById("brush_tool_button").style.left = "0%";
+document.getElementById("brush_tool_button").style.top = "0%";
+document.getElementById("brush_tool_button").addEventListener("click", () =>
+{
+  drawing_tool = !drawing_tool;
+});
+
+document.getElementById("color_button").style.left = "0%";
+document.getElementById("color_button").style.top = "10%";
+document.getElementById("color_button").addEventListener("click", () =>
+{
+  pixel_brush_color = [Math.random(), Math.random(), Math.random()];
+});
+document.getElementById("clear_button").style.left = "0%";
+document.getElementById("clear_button").style.top = "20%";
+document.getElementById("clear_button").addEventListener("click", () =>
+{
+  stroke_vertex_data = [];
+});
+
 //disable scrolling on mobile devices
 document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false});
 
@@ -90,22 +111,6 @@ let stroke_vertex_data = [];
 
 //buffer for the pencil strokes - for webgl (gpu)
 let stroke_vertex_buffer = gl.createBuffer();
-
-//clear the drawing on spacebar pressed
-window.addEventListener('keypress', function (e) {
-  if (e.key == ' ')
-  {
-    stroke_vertex_data = [];
-  }
-  if (e.key == '2')
-  {
-    drawing_tool = !drawing_tool;
-  }
-  if(e.key == '3')
-  {
-    pixel_brush_color = [Math.random(), Math.random(), Math.random()];
-  }
-}, false);
 
 //vertex shader
 let solid_color_VS = gl.createShader(gl.VERTEX_SHADER);
