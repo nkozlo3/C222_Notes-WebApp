@@ -54,6 +54,11 @@ document.getElementById("clear_button").addEventListener("click", () =>
   stroke_vertex_data = [];
 });
 
+document.getElementById("myRange").oninput = function()
+{
+  brush_size = this.value/10;
+};
+
 //disable scrolling on mobile devices
 document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false});
 
@@ -416,6 +421,7 @@ let drawing_tool = 0;
 let pixel_brush_color = [0,0,0];
 let pixel_cursor = vec2.create();
 let prev_pixel_cursor = vec2.create();
+let brush_size = 3;
 
 //update function
 function Update()
@@ -448,7 +454,7 @@ function Update()
   let adj = vec2.create();
   vec2.sub(adj, worldspace_mousepos, prev_worldspace_mousepos);
   vec2.normalize(adj,adj);
-  vec2.scale(adj,adj,6);
+  vec2.scale(adj,adj,2*brush_size);
   adj = vec2.fromValues(adj[1], -adj[0]);
   let moved = Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) + Math.abs(worldspace_mousepos[1] - prev_worldspace_mousepos[1]) > 0;
   if(mouse_down && moved && drawing_tool == 1)

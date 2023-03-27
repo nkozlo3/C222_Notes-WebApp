@@ -151,6 +151,7 @@
   opacity: 0.8;
   border: #575757 3px solid;
   border-radius: 15px;
+  user-select: none;
 }
 
 .drawing_UI:hover {
@@ -159,4 +160,10 @@
 
 .drawing_UI:active {
   background-color: rgb(179, 179, 179);
+}
+
+#myRange
+{
+  top: 5%;
+  left: 1%;
 }
