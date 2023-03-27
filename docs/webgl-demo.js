@@ -34,21 +34,21 @@ window.addEventListener("wheel", (event) =>
 });
 
 
-document.getElementById("brush_tool_button").style.left = "0%";
-document.getElementById("brush_tool_button").style.top = "0%";
+document.getElementById("brush_tool_button").style.left = "1%";
+document.getElementById("brush_tool_button").style.top = "1%";
 document.getElementById("brush_tool_button").addEventListener("click", () =>
 {
   drawing_tool = !drawing_tool;
 });
 
-document.getElementById("color_button").style.left = "0%";
-document.getElementById("color_button").style.top = "10%";
+document.getElementById("color_button").style.left = "1%";
+document.getElementById("color_button").style.top = "11%";
 document.getElementById("color_button").addEventListener("click", () =>
 {
   pixel_brush_color = [Math.random(), Math.random(), Math.random()];
 });
-document.getElementById("clear_button").style.left = "0%";
-document.getElementById("clear_button").style.top = "20%";
+document.getElementById("clear_button").style.left = "1%";
+document.getElementById("clear_button").style.top = "21%";
 document.getElementById("clear_button").addEventListener("click", () =>
 {
   stroke_vertex_data = [];

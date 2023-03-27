@@ -137,13 +137,26 @@
   border: 5px solid #555555;
 }
 
+/*for main page UI*/
 .drawing_UI {
   position: absolute;
   width: 10%;
   height: 5%;
   z-index: 1;
-  background-color: rgb(158, 158, 158);
-  color: #ffffff;
+  background-color: rgb(255, 255, 255);
+  color: rgb(82, 82, 82);
   font-size: 100%;
-  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  font-family: Arial;
+  opacity: 0.8;
+  border: #575757 3px solid;
+  border-radius: 15px;
+}
+
+.drawing_UI:hover {
+  background-color: rgb(202, 202, 202);
+}
+
+.drawing_UI:active {
+  background-color: rgb(179, 179, 179);
 }
