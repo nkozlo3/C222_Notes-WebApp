@@ -7,27 +7,22 @@ function draw() {
 
   var current = {
     //tracks attributes of the current mouse
-    color: "black",
+    color: `hsl(0,0%,0%)`,
     lineWidth: 2,
   };
   var drawing = false;
 
-  // color picker
-  var colorPicker = new window.iro.ColorPicker("#wheelPicker", {
-    width: 150,
-    color: "rgb(255, 0, 0)",
-    borderWidth: 1,
-    borderColor: "#fff",
-    layout: [
-      {
-        component: iro.ui.Wheel,
-        options: {},
-      },
-    ],
-  });
-  colorPicker.on("color:change", function (color1) {
-    // change current color to hexwheel
-    current.color = color1.hexString;
+  // Custom color picker
+  const colorSlider = document.getElementById("color-slider");
+  const colorPreview = document.getElementById("color-preview");
+
+  colorSlider.addEventListener("input", () => {
+    const hue = colorSlider.value;
+    const saturation = 100;
+    const lightness = 50;
+    const hslColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    current.color = hslColor; // Update color variable with new HSL values
+    colorPreview.style.backgroundColor = hslColor; // Update preview color
   });
 
   //===============COLOR CHANGING / BUTTON STUFF===================//
@@ -41,11 +36,11 @@ function draw() {
     context.clearRect(0, 0, canvas.width, canvas.height);
   });
   enableEraserBtn.addEventListener("click", () => {
-    current.color = "white";
+    current.color = `hsl(0,0%,100%)`;
     current.lineWidth = 10;
   });
   paintBrushBtn.addEventListener("click", () => {
-    current.color = "black";
+    current.color = `hsl(0,0%,0%)`;
     current.lineWidth = 2;
   });
   increaseSize.addEventListener("click", () => {
@@ -102,23 +97,3 @@ function draw() {
 }
 
 draw();
-
-// was trying to integrate this into webgl-demo.js
-// //change the color of pixel_brush_color if the the person changes the color on the wheel
-// //color picker
-// var colorPicker = new window.iro.ColorPicker("#colorPicker", {
-//   width: 100,
-//   color: "rgb(255, 0, 0)",
-//   borderWidth: 1,
-//   borderColor: "#fff",
-//   layout: [
-//     {
-//       component: iro.ui.Wheel,
-//     },
-//   ],
-// });
-// //event listener
-// colorPicker.on("color:change", function (color1) {
-//   // change current color to hexwheel
-//   pixel_brush_color.color = [color1.r, color1.g, color1.b];
-// });
