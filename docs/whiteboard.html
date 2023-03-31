@@ -3,18 +3,45 @@
   <head>
     <meta charset="utf-8" />
     <title>Whiteboard</title>
-    <link id="STYLE_" href="style.css" type="text/html" />
+    <link
+      id="STYLE_"
+      href="whiteboard-demo.css"
+      res="stylesheet"
+      type="text/css"
+    />
   </head>
   <body>
-    <div class="buttons">
-      <button id="color-btn" class="btn" type="button">
-        Change Color randomly
-      </button>
-      <button id="clear-btn" class="btn" type="button">Clear</button>
-    </div>
-
+    <script src="whiteboard-demo.js" type="module" defer></script>
     <canvas id="whiteboardCanvas" class="whiteboard"></canvas>
 
-    <script src="whiteboard-demo.js" type="module" defer></script>
+    <!-- HTML code for buttons-->
+    <div class="buttons">
+      <button id="clear-btn" class="btn" type="button">Clear</button>
+      <button id="eraser-btn" class="btn" type="button">
+        Switch to Eraser
+      </button>
+      <button id="paintbrush-btn" class="btn" type="button">
+        Switch to Paintbrush
+      </button>
+      <button id="brush-size-btn" class="btn" type="button">
+        Increase brush/eraser size by 10px
+      </button>
+    </div>
+    <!-- HTML code for color slider -->
+
+    <div id="color-preview">
+      <input
+        type="range"
+        id="color-slider"
+        min="0"
+        max="360"
+        step="0.02"
+        value="0"
+      />
+    </div>
+
+    <!-- -div and script is for the color picker
+        <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+        <div class="ColorPicker" id="colorPicker"></div> -->
   </body>
 </html>

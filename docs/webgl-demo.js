@@ -19,15 +19,11 @@ let scroll_x = 0;
 let zoom = 1;
 let zoom_delta = 0;
 let rotate = 0;
-window.addEventListener("wheel", (event) =>
-{
-  if(event.ctrlKey == true)
-  {
+window.addEventListener("wheel", (event) => {
+  if (event.ctrlKey == true) {
     zoom_delta = event.deltaY;
     rotate = event.deltaX;
-  }
-  else
-  {
+  } else {
     scroll_y = event.deltaY;
     scroll_x = event.deltaX;
   }
@@ -60,7 +56,13 @@ document.getElementById("myRange").oninput = function()
 };
 
 //disable scrolling on mobile devices
-document.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive:false});
+document.addEventListener(
+  "touchmove",
+  (e) => {
+    e.preventDefault();
+  },
+  { passive: false }
+);
 
 //initialize the canvas to the size of the screen
 document.getElementById("glcanvas").height = window.innerHeight;
@@ -68,31 +70,26 @@ document.getElementById("glcanvas").width = window.innerWidth;
 
 //initialize webgl
 const canvas = document.querySelector("canvas");
-const gl = canvas.getContext("webgl", { antialias: false, premultipliedAlpha: false });
+const gl = canvas.getContext("webgl", {
+  antialias: false,
+  premultipliedAlpha: false,
+});
 if (!gl) {
   throw new Error("Webgl is not supported");
 }
 
 //initialize cube data
 let square_vertex_array = [
-  -1,-1,0,
-  1,-1,0,
-  1,1,0,
+  -1, -1, 0, 1, -1, 0, 1, 1, 0,
 
-  -1,-1,0,
-  1,1,0,
-  -1,1,0,
+  -1, -1, 0, 1, 1, 0, -1, 1, 0,
 ];
 
 let square_uv_array = [
-  0,0,
-  1,0,
-  1,1,
+  0, 0, 1, 0, 1, 1,
 
-  0,0,
-  1,1,
-  0,1,
-]
+  0, 0, 1, 1, 0, 1,
+];
 
 //buffers
 let square_vertex_buffer = gl.createBuffer();
@@ -121,7 +118,7 @@ let stroke_vertex_buffer = gl.createBuffer();
 let solid_color_VS = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(
   solid_color_VS,
-`
+  `
 precision mediump float;
 attribute vec3 position;
 uniform mat4 matrix;
@@ -138,7 +135,7 @@ gl.compileShader(solid_color_VS);
 let solid_color_FS = gl.createShader(gl.FRAGMENT_SHADER);
 gl.shaderSource(
   solid_color_FS,
-`
+  `
 precision mediump float;
 uniform vec4 color;
 
@@ -157,21 +154,29 @@ gl.attachShader(solid_color_shader_program, solid_color_FS);
 gl.linkProgram(solid_color_shader_program);
 
 //attributes - these are in the vertex shader
-let solid_color_vertex_attrib = gl.getAttribLocation(solid_color_shader_program, "position");
+let solid_color_vertex_attrib = gl.getAttribLocation(
+  solid_color_shader_program,
+  "position"
+);
 gl.enableVertexAttribArray(solid_color_vertex_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
 gl.vertexAttribPointer(solid_color_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
 
 //uniforms - these are in the vertex and fragment shader
-let solid_color_matrix_uniform = gl.getUniformLocation(solid_color_shader_program, "matrix");
-let solid_color_color_uniform = gl.getUniformLocation(solid_color_shader_program, "color");
-
+let solid_color_matrix_uniform = gl.getUniformLocation(
+  solid_color_shader_program,
+  "matrix"
+);
+let solid_color_color_uniform = gl.getUniformLocation(
+  solid_color_shader_program,
+  "color"
+);
 
 //vertex shader
 let sheet_vertex_shader = gl.createShader(gl.VERTEX_SHADER);
 gl.shaderSource(
   sheet_vertex_shader,
-`
+  `
 precision mediump float;
 attribute vec3 position;
 attribute vec2 uv_coord;
@@ -191,7 +196,7 @@ gl.compileShader(sheet_vertex_shader);
 let sheet_fragment_shader = gl.createShader(gl.FRAGMENT_SHADER);
 gl.shaderSource(
   sheet_fragment_shader,
-`
+  `
 precision mediump float;
 varying vec2 uv;
 uniform sampler2D u_texture;
@@ -223,7 +228,10 @@ gl.attachShader(sheet_shader_program, sheet_fragment_shader);
 gl.linkProgram(sheet_shader_program);
 
 //attributes - these are in the vertex shader
-let sheet_position_attrib = gl.getAttribLocation(sheet_shader_program, "position");
+let sheet_position_attrib = gl.getAttribLocation(
+  sheet_shader_program,
+  "position"
+);
 gl.enableVertexAttribArray(sheet_position_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
 gl.vertexAttribPointer(sheet_position_attrib, 3, gl.FLOAT, false, 0, 0);
@@ -234,15 +242,24 @@ gl.bindBuffer(gl.ARRAY_BUFFER, square_uv_buffer);
 gl.vertexAttribPointer(sheet_uv_attrib, 2, gl.FLOAT, false, 0, 0);
 
 //uniforms
-let sheet_matrix_uniform = gl.getUniformLocation(sheet_shader_program, "matrix");
-let sheet_mouse_pos_uniform = gl.getUniformLocation(sheet_shader_program, "mouse_pos");
-let sheet_page_resolution_uniform = gl.getUniformLocation(sheet_shader_program, "page_resolution");
-
+let sheet_matrix_uniform = gl.getUniformLocation(
+  sheet_shader_program,
+  "matrix"
+);
+let sheet_mouse_pos_uniform = gl.getUniformLocation(
+  sheet_shader_program,
+  "mouse_pos"
+);
+let sheet_page_resolution_uniform = gl.getUniformLocation(
+  sheet_shader_program,
+  "page_resolution"
+);
 
 //vertex shader
 let pixel_drawer_vertex_shader = gl.createShader(gl.VERTEX_SHADER);
-gl.shaderSource(pixel_drawer_vertex_shader,
-`
+gl.shaderSource(
+  pixel_drawer_vertex_shader,
+  `
 precision mediump float;
 attribute vec3 position;
 attribute vec2 uv_coord;
@@ -261,8 +278,9 @@ gl.compileShader(pixel_drawer_vertex_shader);
 
 //fragment shader
 let pixel_drawer_fragment_shader = gl.createShader(gl.FRAGMENT_SHADER);
-gl.shaderSource(pixel_drawer_fragment_shader,
-`
+gl.shaderSource(
+  pixel_drawer_fragment_shader,
+  `
 precision mediump float;
 uniform vec3 color;
 uniform sampler2D u_texture;
@@ -310,21 +328,42 @@ gl.attachShader(pixel_drawer_shader_program, pixel_drawer_fragment_shader);
 gl.linkProgram(pixel_drawer_shader_program);
 
 //attributes - these are in the vertex shader
-let pixel_drawer_vertex_attrib = gl.getAttribLocation(pixel_drawer_shader_program, "position");
+let pixel_drawer_vertex_attrib = gl.getAttribLocation(
+  pixel_drawer_shader_program,
+  "position"
+);
 gl.enableVertexAttribArray(pixel_drawer_vertex_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
 gl.vertexAttribPointer(pixel_drawer_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
-let pixel_drawer_uv_attrib = gl.getAttribLocation(pixel_drawer_shader_program, "uv_coord");
+let pixel_drawer_uv_attrib = gl.getAttribLocation(
+  pixel_drawer_shader_program,
+  "uv_coord"
+);
 gl.enableVertexAttribArray(pixel_drawer_uv_attrib);
 gl.bindBuffer(gl.ARRAY_BUFFER, square_uv_buffer);
 gl.vertexAttribPointer(pixel_drawer_uv_attrib, 2, gl.FLOAT, false, 0, 0);
 
 //uniforms - these are in the vertex and fragment shader
-let pixel_drawer_matrix_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "matrix");
-let pixel_drawer_color_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "color");
-let pixel_drawer_cursor_pos_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "cursor_pos");
-let pixel_drawer_prev_cursor_pos_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "prev_cursor_pos");
-let pixel_drawer_mouse_down_uniform = gl.getUniformLocation(pixel_drawer_shader_program, "mouse_down");
+let pixel_drawer_matrix_uniform = gl.getUniformLocation(
+  pixel_drawer_shader_program,
+  "matrix"
+);
+let pixel_drawer_color_uniform = gl.getUniformLocation(
+  pixel_drawer_shader_program,
+  "color"
+);
+let pixel_drawer_cursor_pos_uniform = gl.getUniformLocation(
+  pixel_drawer_shader_program,
+  "cursor_pos"
+);
+let pixel_drawer_prev_cursor_pos_uniform = gl.getUniformLocation(
+  pixel_drawer_shader_program,
+  "prev_cursor_pos"
+);
+let pixel_drawer_mouse_down_uniform = gl.getUniformLocation(
+  pixel_drawer_shader_program,
+  "mouse_down"
+);
 
 // create render texture
 const frame_buffer_width = 800;
@@ -338,7 +377,17 @@ const border = 0;
 const format = gl.RGBA;
 const type = gl.UNSIGNED_BYTE;
 const data = null;
-gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, frame_buffer_width, frame_buffer_height, border, format, type, data);
+gl.texImage2D(
+  gl.TEXTURE_2D,
+  level,
+  internalFormat,
+  frame_buffer_width,
+  frame_buffer_height,
+  border,
+  format,
+  type,
+  data
+);
 // set the filtering so we don't need mips
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -349,15 +398,31 @@ const fb = gl.createFramebuffer();
 gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
 // attach the texture as the first color attachment
 const attachmentPoint = gl.COLOR_ATTACHMENT0;
-gl.framebufferTexture2D(gl.FRAMEBUFFER, attachmentPoint, gl.TEXTURE_2D, pixel_drawing_texture, level);
-gl.clearColor(1,1,1, 1.0);
+gl.framebufferTexture2D(
+  gl.FRAMEBUFFER,
+  attachmentPoint,
+  gl.TEXTURE_2D,
+  pixel_drawing_texture,
+  level
+);
+gl.clearColor(1, 1, 1, 1.0);
 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 // create a buffere to hold the pixel data from the render texture
 let pixel_image_buffer = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, pixel_image_buffer);
 // define size and format of level 0
-gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, frame_buffer_width, frame_buffer_height, border, format, type, data);
+gl.texImage2D(
+  gl.TEXTURE_2D,
+  level,
+  internalFormat,
+  frame_buffer_width,
+  frame_buffer_height,
+  border,
+  format,
+  type,
+  data
+);
 // set the filtering so we don't need mips
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -371,10 +436,20 @@ gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 //load image
 let sheet_texture = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_2D, sheet_texture);
-gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 125, 255, 255]));
+gl.texImage2D(
+  gl.TEXTURE_2D,
+  0,
+  gl.RGBA,
+  1,
+  1,
+  0,
+  gl.RGBA,
+  gl.UNSIGNED_BYTE,
+  new Uint8Array([0, 125, 255, 255])
+);
 let image = new Image();
 image.src = "../data/better.jpg";
-image.addEventListener('load', function() {
+image.addEventListener("load", function () {
   // Now that the image has loaded make copy it to the texture.
   gl.bindTexture(gl.TEXTURE_2D, sheet_texture);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
@@ -383,25 +458,44 @@ image.addEventListener('load', function() {
 
 //initialize matrices
 let sheet_transform_matrix = mat4.create();
-mat4.translate(sheet_transform_matrix, sheet_transform_matrix, [0, 0, 0.999999]);
-mat4.scale(sheet_transform_matrix, sheet_transform_matrix, [frame_buffer_width, frame_buffer_height, 1]);
+mat4.translate(
+  sheet_transform_matrix,
+  sheet_transform_matrix,
+  [0, 0, 0.999999]
+);
+mat4.scale(sheet_transform_matrix, sheet_transform_matrix, [
+  frame_buffer_width,
+  frame_buffer_height,
+  1,
+]);
 
 let pixel_to_clip = mat4.create();
-mat4.scale(pixel_to_clip, pixel_to_clip, [canvas.width/2,-canvas.height/2,1]);
-mat4.translate(pixel_to_clip, pixel_to_clip, [1,-1,0]);
+mat4.scale(pixel_to_clip, pixel_to_clip, [
+  canvas.width / 2,
+  -canvas.height / 2,
+  1,
+]);
+mat4.translate(pixel_to_clip, pixel_to_clip, [1, -1, 0]);
 mat4.invert(pixel_to_clip, pixel_to_clip);
 
 let clip_to_world = mat4.create();
-mat4.scale(clip_to_world, clip_to_world, [canvas.width/2, canvas.height/2, 1]);
+mat4.scale(clip_to_world, clip_to_world, [
+  canvas.width / 2,
+  canvas.height / 2,
+  1,
+]);
 
-window.addEventListener('keypress', function (e) {
-  if (e.key == '1')
-  {
-    clip_to_world[12] = 0;
-    clip_to_world[13] = 0;
-    zoom = 1;
-  }
-}, false);
+window.addEventListener(
+  "keypress",
+  function (e) {
+    if (e.key == "1") {
+      clip_to_world[12] = 0;
+      clip_to_world[13] = 0;
+      zoom = 1;
+    }
+  },
+  false
+);
 
 let world_to_clip = mat4.create();
 
@@ -418,24 +512,23 @@ let prev_worldspace_mousepos = vec2.create();
 let prev_adj = vec2.create();
 let worldspace_mousepos = vec2.create();
 let drawing_tool = 0;
-let pixel_brush_color = [0,0,0];
+let pixel_brush_color = [0, 0, 0];
 let pixel_cursor = vec2.create();
 let prev_pixel_cursor = vec2.create();
 let brush_size = 3;
 
 //update function
-function Update()
-{
+function Update() {
   time += 0.01;
 
-  zoom *= Math.E**(zoom_delta/800);
+  zoom *= Math.E ** (zoom_delta / 800);
 
   //scale camera
   clip_to_world[0] = canvas.width * zoom;
   clip_to_world[5] = canvas.height * zoom;
   //translate camera
-  clip_to_world[12] += scroll_x * zoom ;
-  clip_to_world[13] -= scroll_y * zoom ;
+  clip_to_world[12] += scroll_x * zoom;
+  clip_to_world[13] -= scroll_y * zoom;
   //reset variables after use
   scroll_y = 0;
   scroll_x = 0;
@@ -456,20 +549,19 @@ function Update()
   vec2.normalize(adj,adj);
   vec2.scale(adj,adj,2*brush_size);
   adj = vec2.fromValues(adj[1], -adj[0]);
-  let moved = Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) + Math.abs(worldspace_mousepos[1] - prev_worldspace_mousepos[1]) > 0;
-  if(mouse_down && moved && drawing_tool == 1)
-  {
-    if(stroke_vertex_data.length < 6 || !prev_mouse_down)
-    {
+  let moved =
+    Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) +
+      Math.abs(worldspace_mousepos[1] - prev_worldspace_mousepos[1]) >
+    0;
+  if (mouse_down && moved && drawing_tool == 1) {
+    if (stroke_vertex_data.length < 6 || !prev_mouse_down) {
       stroke_vertex_data.push(worldspace_mousepos[0]);
       stroke_vertex_data.push(worldspace_mousepos[1]);
       stroke_vertex_data.push(worldspace_mousepos[0]);
       stroke_vertex_data.push(worldspace_mousepos[1]);
       stroke_vertex_data.push(worldspace_mousepos[0]);
       stroke_vertex_data.push(worldspace_mousepos[1]);
-    }
-    else
-    {
+    } else {
       stroke_vertex_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
       stroke_vertex_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
       stroke_vertex_data.push(worldspace_mousepos[0] + adj[0]);
@@ -489,19 +581,31 @@ function Update()
   }
   prev_mouse_down = mouse_down;
 
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(stroke_vertex_data), gl.STATIC_DRAW);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array(stroke_vertex_data),
+    gl.STATIC_DRAW
+  );
 }
 
 //drawing function
-function Draw()
-{
+function Draw() {
   //draw to the framebuffer pixels
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
   gl.bindTexture(gl.TEXTURE_2D, pixel_image_buffer);
-  gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, frame_buffer_width, frame_buffer_height, 0);
+  gl.copyTexImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    0,
+    0,
+    frame_buffer_width,
+    frame_buffer_height,
+    0
+  );
   gl.viewport(0, 0, frame_buffer_width, frame_buffer_height);
 
-  gl.clearColor(1,0,1,1);
+  gl.clearColor(1, 0, 1, 1);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   gl.useProgram(pixel_drawer_shader_program);
@@ -509,10 +613,16 @@ function Draw()
   gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
   gl.vertexAttribPointer(pixel_drawer_vertex_attrib, 3, gl.FLOAT, false, 0, 0);
   gl.uniformMatrix4fv(pixel_drawer_matrix_uniform, false, mat4.create());
-  pixel_cursor = vec2.fromValues((worldspace_mousepos[0] + frame_buffer_width)/2, (worldspace_mousepos[1] + frame_buffer_height)/2);
+  pixel_cursor = vec2.fromValues(
+    (worldspace_mousepos[0] + frame_buffer_width) / 2,
+    (worldspace_mousepos[1] + frame_buffer_height) / 2
+  );
   gl.uniform2fv(pixel_drawer_cursor_pos_uniform, pixel_cursor);
   gl.uniform2fv(pixel_drawer_prev_cursor_pos_uniform, prev_pixel_cursor);
-  gl.uniform1i(pixel_drawer_mouse_down_uniform, mouse_down && drawing_tool == 0);
+  gl.uniform1i(
+    pixel_drawer_mouse_down_uniform,
+    mouse_down && drawing_tool == 0
+  );
   prev_pixel_cursor = vec2.fromValues(pixel_cursor[0], pixel_cursor[1]);
   gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
@@ -527,7 +637,10 @@ function Draw()
 
   gl.useProgram(sheet_shader_program);
 
-  gl.uniform2fv(sheet_page_resolution_uniform, [frame_buffer_width, frame_buffer_height]);
+  gl.uniform2fv(sheet_page_resolution_uniform, [
+    frame_buffer_width,
+    frame_buffer_height,
+  ]);
   gl.uniform2fv(sheet_mouse_pos_uniform, pixel_cursor);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
@@ -539,7 +652,7 @@ function Draw()
 
   gl.useProgram(solid_color_shader_program);
 
-  gl.uniform4fv(solid_color_color_uniform, [0.5,0.5,0.5,1]);
+  gl.uniform4fv(solid_color_color_uniform, [0.5, 0.5, 0.5, 1]);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, stroke_vertex_buffer);
   gl.vertexAttribPointer(solid_color_vertex_attrib, 2, gl.FLOAT, false, 0, 0);
@@ -549,8 +662,7 @@ function Draw()
 }
 
 //define the update loop
-function FrameUpdate()
-{
+function FrameUpdate() {
   Update();
   Draw();
   requestAnimationFrame(FrameUpdate);
@@ -562,14 +674,22 @@ window.addEventListener("resize", () => {
   canvas.width = window.innerWidth;
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
   pixel_to_clip = mat4.create();
-  mat4.scale(pixel_to_clip, pixel_to_clip, [canvas.width/2,-canvas.height/2,1]);
-  mat4.translate(pixel_to_clip, pixel_to_clip, [1,-1,0]);
+  mat4.scale(pixel_to_clip, pixel_to_clip, [
+    canvas.width / 2,
+    -canvas.height / 2,
+    1,
+  ]);
+  mat4.translate(pixel_to_clip, pixel_to_clip, [1, -1, 0]);
   mat4.invert(pixel_to_clip, pixel_to_clip);
 
-  let temp = [clip_to_world[12],clip_to_world[13],clip_to_world[14]];//preserve camera position
+  let temp = [clip_to_world[12], clip_to_world[13], clip_to_world[14]]; //preserve camera position
 
   clip_to_world = mat4.create();
-  mat4.scale(clip_to_world, clip_to_world, [canvas.width/2, canvas.height/2, 1]);
+  mat4.scale(clip_to_world, clip_to_world, [
+    canvas.width / 2,
+    canvas.height / 2,
+    1,
+  ]);
   clip_to_world[12] = temp[0];
   clip_to_world[13] = temp[1];
   clip_to_world[14] = temp[2];

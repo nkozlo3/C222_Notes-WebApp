@@ -92,6 +92,26 @@
   box-shadow: 2px 2px 5px #0a908d;
 }
 
+#clearStorage {
+  z-index: 2;
+  background-color: transparent;
+  position: absolute;
+  width: 5%;
+  height: 4%;
+  top: 92.35%;
+  left: 5%;
+  z-index: 1;
+  background-color: transparent;
+  font-size: 75%;
+}
+#clearStorage:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#clearStorage:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+
 .standardSave {
   z-index: 2;
   background-color: transparent;
@@ -108,33 +128,6 @@
 }
 .standardSave:active {
   box-shadow: 2px 2px 5px #0a908d;
-}
-/* for the whiteboard page */
-.whiteboard {
-  height: 100%;
-  width: 100%;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 0;
-}
-
-.buttons {
-  position: fixed;
-  right: 0;
-  top: 0;
-  z-index: 1; /* make the button on top of the whiteboard */
-}
-
-.btn {
-  font-size: 14px;
-  padding: 5px 10px;
-  text-decoration: none;
-  cursor: pointer;
-  background-color: white;
-  color: black;
-  border: 5px solid #555555;
 }
 
 /*for main page UI*/
