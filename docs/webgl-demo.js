@@ -525,8 +525,6 @@ function updateColor() {
     parseInt(green) / 255.0,
     parseInt(blue) / 255.0,
   ]; // Update rgb brush color with slider color
-  console.log(rgbColor);
-  console.log(pixel_brush_color);
   rgbLabel.textContent = `red = ${red}, green = ${green}, blue = ${blue})`;
 }
 
