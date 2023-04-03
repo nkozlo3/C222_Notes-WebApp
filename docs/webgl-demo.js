@@ -507,6 +507,34 @@ let pixel_brush_color = [0, 0, 0];
 let pixel_cursor = vec2.create();
 let prev_pixel_cursor = vec2.create();
 
+// BEGIN -- custom color picker
+const redSlider = document.getElementById("red-slider");
+const greenSlider = document.getElementById("green-slider");
+const blueSlider = document.getElementById("blue-slider");
+const colorPreview = document.getElementById("color-preview");
+const rgbLabel = document.getElementById("rgb-label");
+
+function updateColor() {
+  const red = redSlider.value;
+  const green = greenSlider.value;
+  const blue = blueSlider.value;
+  const rgbColor = `rgb(${red}, ${green}, ${blue})`;
+  colorPreview.style.backgroundColor = rgbColor; // Update preview color
+  pixel_brush_color = [
+    parseInt(red) / 255.0,
+    parseInt(green) / 255.0,
+    parseInt(blue) / 255.0,
+  ]; // Update rgb brush color with slider color
+  console.log(rgbColor);
+  console.log(pixel_brush_color);
+  rgbLabel.textContent = `red = ${red}, green = ${green}, blue = ${blue})`;
+}
+
+redSlider.addEventListener("input", updateColor);
+greenSlider.addEventListener("input", updateColor);
+blueSlider.addEventListener("input", updateColor);
+//END -- custom color picker
+
 //update function
 function Update() {
   time += 0.01;
