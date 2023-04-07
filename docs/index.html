@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
@@ -67,6 +67,12 @@
       "
     >
       <canvas id="glcanvas"></canvas>
+      <div id="drawing_overlay">
+      <button class="drawing_UI" id="brush_tool_button" type="button">brush tool</button>
+      <button class="drawing_UI" id="color_button" type="button">color</button>
+      <button class="drawing_UI" id="clear_button" type="button">clear</button>
+      <input type="range" min="1" max="100" value="50" class="drawing_UI" id="myRange">Hello</input>
+      </div>
       <!-- div for main screen -->
       <div id="defaultDiv">
         <textarea
