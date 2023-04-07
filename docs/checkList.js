@@ -25,8 +25,10 @@ document.getElementById("newCheckBoxButton").onclick = function () {
 
 // on click of 'clearStorage' button
 document.getElementById("clearStorage").onclick = function () {
-  // clear the list from local storage
-  localStorage.clear();
+  // remove everything from checkListArray
+  checkListArray = [];
+  localStorage.setItem("checkListArray", JSON.stringify(checkListArray));
+  alert(checkListArray);
   // clear the list from the page
   document.getElementById("checkList").innerHTML = "";
 };
@@ -60,10 +62,16 @@ function addListItem(listString) {
 
   // on click of the close button
   close.onclick = function () {
+    alert("close button clicked");
     // get the index of the list item
     var index = checkListArray.indexOf(listString);
     // remove the list item from the list
     item.remove();
+    // remove the list item from local storage
+    alert(checkListArray);
+    checkListArray.splice(index, 1);
+    localStorage.setItem("checkListArray", JSON.stringify(checkListArray));
+    alert(checkListArray);
   };
 
   // add the list item to the list
@@ -108,6 +116,28 @@ function loadList() {
     // create a list item
     var item = document.createElement("li");
     item.innerHTML = storedList[i];
+
+    // create a close button
+    var close = document.createElement("button");
+    // set text for the close button to be an 'X'
+    close.innerHTML = "X";
+    close.className = "close";
+    item.appendChild(close);
+
+    // on click of the close button
+    close.onclick = function () {
+      alert("close button clicked");
+      // get the index of the list item
+      var index = checkListArray.indexOf(listString);
+      // remove the list item from the list
+      item.remove();
+      // remove the list item from local storage
+      alert(checkListArray);
+      checkListArray.splice(index, 1);
+      localStorage.setItem("checkListArray", JSON.stringify(checkListArray));
+      alert(checkListArray);
+    };
+
     // add the list item to the list
     document.getElementById("checkList").appendChild(item);
 

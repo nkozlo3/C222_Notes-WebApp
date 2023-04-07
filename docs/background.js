@@ -9,9 +9,12 @@ document.body.style.backgroundColor = "#d1f2eb";
 document.getElementById("drawingDiv").style.display = "none";
 document.getElementById("checkListDiv").style.display = "none";
 
+
+
 // create a script element so we only draw when the user wants to
 var script = document.createElement("script");
 script.src = "webgl-demo.js";
+
 
 // listen for the click event on the text area with the id 'input'
 document.getElementById("input").addEventListener("click", function () {
@@ -65,6 +68,8 @@ document
   .addEventListener("click", function () {
     document.getElementById("defaultDiv").style.display = "none";
     document.getElementById("drawingDiv").style.display = "block";
+    // set the div with id 'drawing_overlay' to be visible
+    document.getElementById("drawing_overlay").style.display = "block";
     // append the script file "webgl-demo.js" to the body
     document.body.appendChild(script);
   });

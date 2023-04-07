@@ -139,6 +139,19 @@
   right: 0;
   bottom: 0;
   top: 0;
+
+  width: 10%;
+  height: 5%;
+  z-index: 0;
+  background-color: rgb(255, 255, 255);
+  color: rgb(82, 82, 82);
+  font-size: 100%;
+  font-weight: bold;
+  font-family: Arial;
+  opacity: 0.8;
+  border: #575757 3px solid;
+  border-radius: 15px;
+  user-select: none;
 }
 
 .buttons {
