@@ -139,6 +139,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  right: 0;
 }
 
 #color-preview {
@@ -216,8 +217,7 @@
   background-color: rgb(179, 179, 179);
 }
 
-#myRange
-{
+#myRange {
   top: 5%;
   left: 1%;
 }
