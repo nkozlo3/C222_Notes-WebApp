@@ -5,12 +5,13 @@ let button = document.getElementById("saveButton");
 // on page load
 window.onload = function () {
   // if local storage does not exist or is empty
-  if (!localStorage.myNotesArray || localStorage.myNotesArray == "[]") {
+  if (!localStorage.notesArray || localStorage.notesArray == "[]") {
     // return
     return;
   }
-  // populate the myNotesArray with the list from local storage
-  notesArray = JSON.parse(localStorage.getItem("myNotesArray"));
+  // populate the notesArray with the list from local storage
+  notesArray = JSON.parse(localStorage.getItem("notesArray"));
+
   // load the list from local storage
   loadNotes();
 };
@@ -24,7 +25,6 @@ document.getElementById("input").addEventListener("blur", function () {
   // the new list string
   var note = document.getElementById("input").value;
   addListItem(note);
-  alert(note);
 });
 
 // function to save a add a new list item
@@ -43,16 +43,39 @@ function addListItem(listString) {
 // function to save a list item to local storage with one argument, the list string
 function saveNote(listString) {
   // get the list from local storage
-  notesArray.push(listString);
+  var storedNotes = JSON.parse(localStorage.getItem("notesArray"));
+
+  storedNotes.push(listString);
   // save the updated list to local storage
-  localStorage.setItem("myNotesArray", JSON.stringify(notesArray));
+  localStorage.setItem("notesArray", JSON.stringify(storedNotes));
 }
 
 // function to load the list from local storage and add it to the page
 function loadNotes() {
   // if the list does not exist in local storage or is empty
-  if (!localStorage.myNotesArray || localStorage.myNotesArray == "[]") {
+  if (!localStorage.notesArray || localStorage.notesArray == "[]") {
     return;
   }
-  // TODO: load list neatly using webgl
+  // get the list from local storage
+  var storedNotes = JSON.parse(localStorage.getItem("notesArray"));
+  
+  // for each item in the list
+  var str = "";
+  for (var i = 0; i < storedNotes.length; i++) {
+    // Differentiate between notes with a label for each note i.e. Note 1, Note 2, etc.
+    var label = "\n" + "Note " + (i + 1) + ":" + "\n";
+    str += label;
+    str += storedNotes[i];
+  }
+  document.getElementById("retrievedNotes").value = str;
 }
+
+document.getElementById("clearNotesButton").onclick = function () {
+  alert("clearNotesButton clicked");
+  // remove everything from notesArray
+  var clearedNotes = [];
+  // save the updated list to local storage
+  localStorage.setItem("notesArray", JSON.stringify(clearedNotes));
+  // clear the input
+  document.getElementById("retrievedNotes").value = "";
+};

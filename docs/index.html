@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link
       rel="stylesheet"
       href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
@@ -19,11 +22,27 @@
     ></script>
     <script src="background.js" type="module" defer></script>
     <script src="storage.js" type="module" defer></script>
-    <!-- <script src="webgl-demo.js" type="module" defer></script> -->
     <script src="checkList.js" type="module" defer></script>
   </head>
   <!--Add a div to preserve aspect ratio across devices and screen sizes-->
   <body>
+    <div id="drawing_overlay">
+      <button class="drawing_UI" id="brush_tool_button" type="button">
+        brush tool
+      </button>
+      <button class="drawing_UI" id="color_button" type="button">color</button>
+      <button class="drawing_UI" id="clear_button" type="button">clear</button>
+      <input
+        type="range"
+        min="1"
+        max="100"
+        value="50"
+        class="drawing_UI"
+        id="myRange"
+        placeholder="Hello"
+      />
+    </div>
+    <!--end color slider div-->
     <div
       id="wrapper"
       style="
@@ -47,13 +66,17 @@
         <button id="newCheckBoxButton" class="StandardButton">
           <i class="uil uil-check-square"></i>
         </button>
-        <!-- Add a save button for notes -->
-        <button id="saveButton" class="standardSave">Save Note</button>
+        <!-- add button to save a note -->
+        <button id="saveButton" class="standardSave">Save</button>
         <!-- add a button for a new drawing note to the page -->
         <button id="newDrawingButton" class="StandardButton">
           <i class="uil uil-pen"></i>
           <html></html>
         </button>
+        <!-- Add a button to view saved notes to the page -->
+        <a href="notes.html" id="viewSavedNotesButton" class="SaveNote">
+          <i class="uil uil-file-alt">Saved Notes</i>
+        </a>
       </div>
       <!-- div for drawing mode -->
       <div id="drawingDiv">
@@ -64,9 +87,9 @@
       <div id="checkListDiv">
         <input type="text" id="checkListTitle" placeholder="Title" />
         <button id="saveCheckList" class="standardSave">Save Checklist</button>
-        <button id="checkListAdd"> Add </button>
+        <button id="checkListAdd">Add</button>
         <!-- Button to clear local storage -->
-        <button id="clearStorage"> Clear Storage </button>
+        <button id="clearStorage">Clear Storage</button>
         <!-- new ul -->
         <ul id="checkList"></ul>
       </div>
