@@ -39,6 +39,48 @@
         value="0"
       />
     </div>
+    <script src="checkList.js" type="module" defer></script>
+    <script>
+      // Call the loadList function when the page is loaded
+      window.onload = loadList;
+
+      document.getElementById("checkListAdd").onclick = function () {
+        addListItem(document.getElementById("checkListTitle").value);
+      };
+
+      document.getElementById("clearStorage").onclick = clearLocalStorage;
+
+      document.getElementById("newCheckBoxButton").onclick = newCheckBox;
+
+      document.getElementById("searchInput").onkeyup = filterList;
+
+      var items = document.querySelectorAll("#checkList li");
+      for (var i = 0; i < items.length; i++) {
+        items[i].addEventListener("dragstart", dragStart);
+        items[i].addEventListener("dragover", dragOver);
+        items[i].addEventListener("drop", drop);
+        items[i].addEventListener("dragend", dragEnd);
+      }
+    </script>
+
+    
+     <!-- CheckList implementation code -->
+    <div id="checkListContainer">
+      <!-- Add an input field for adding new list items -->
+      <input type="text" id="checkListTitle" placeholder="Add an item" />
+      <!-- Add a button for adding new list items -->
+      <button id="checkListAdd">Add</button>
+      <!-- Add a search input for filtering list items -->
+      <input type="text" id="searchInput" placeholder="Search" />
+      <!-- Add a button for clearing the list -->
+      <button id="clearStorage">Clear List</button>
+      <!-- Add a button for creating a new list -->
+      <button id="newCheckBoxButton">New List</button>
+      <!-- Add the list -->
+      <ul id="checkList"></ul>
+    </div>
+    
+
 
     <!-- -div and script is for the color picker
         <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
