@@ -94,6 +94,56 @@ function draw() {
     current.x = e.clientX;
     current.y = e.clientY;
   }
+
+  // code for the square fill selection
+  const generateSquareBtn = document.getElementById("generate-square-btn");
+  const squareFillSelect = document.getElementById("square-fill-select");
+  const squareSizeSelect = document.getElementById("square-size-select");
+  const squareAmountSelect = document.getElementById("square-amount-select");
+
+  generateSquareBtn.addEventListener("click", () => {
+    const squareSize = squareSizeSelect.value;
+    const squareFill = squareFillSelect.value;
+    const squareAmount = squareAmountSelect.value;
+    let squareDimension;
+
+    // Set square dimension based on the selected size
+    switch (squareSize) {
+      case "small":
+        squareDimension = 50;
+        break;
+      case "medium":
+        squareDimension = 100;
+        break;
+      case "large":
+        squareDimension = 200;
+        break;
+      default:
+        squareDimension = 100;
+    }
+    for (let i = 0; i < squareAmount; i++) {
+      drawSquare(context, squareDimension, squareFill);
+    }
+  });
+
+  function drawSquare(context, dimension, fill) {
+    // Generate random x and y coordinates within the canvas
+    const x = Math.random() * (context.canvas.width - dimension);
+    const y = Math.random() * (context.canvas.height - dimension);
+
+    context.beginPath();
+    context.rect(x, y, dimension, dimension);
+
+    if (fill === "filled") {
+      context.fillStyle = current.color;
+      context.fill();
+    }
+
+    context.strokeStyle = current.color;
+    context.lineWidth = 2;
+    context.stroke();
+    context.closePath();
+  }
 }
 
 draw();
