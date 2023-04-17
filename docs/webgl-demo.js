@@ -29,30 +29,48 @@ window.addEventListener("wheel", (event) => {
   }
 });
 
-
 document.getElementById("brush_tool_button").style.left = "1%";
 document.getElementById("brush_tool_button").style.top = "1%";
-document.getElementById("brush_tool_button").addEventListener("click", () =>
-{
+document.getElementById("brush_tool_button").addEventListener("click", () => {
   drawing_tool = !drawing_tool;
 });
 
 document.getElementById("color_button").style.left = "1%";
 document.getElementById("color_button").style.top = "11%";
-document.getElementById("color_button").addEventListener("click", () =>
-{
+document.getElementById("color_button").addEventListener("click", () => {
   pixel_brush_color = [Math.random(), Math.random(), Math.random()];
 });
 document.getElementById("clear_button").style.left = "1%";
 document.getElementById("clear_button").style.top = "21%";
-document.getElementById("clear_button").addEventListener("click", () =>
-{
+document.getElementById("clear_button").addEventListener("click", () => {
+  // Clear the stroke vertex data
   stroke_vertex_data = [];
+
+  // Clear the render texture (pixel_drawing_texture)
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.clearColor(1, 1, 1, 1.0);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  // Update the pixel image buffer
+  gl.bindTexture(gl.TEXTURE_2D, pixel_image_buffer);
+  gl.copyTexImage2D(
+    gl.TEXTURE_2D,
+    0,
+    gl.RGBA,
+    0,
+    0,
+    frame_buffer_width,
+    frame_buffer_height,
+    0
+  );
+
+  // Reset the framebuffer
+  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 });
 
-document.getElementById("myRange").oninput = function()
-{
-  brush_size = this.value/10;
+document.getElementById("myRange").oninput = function () {
+  brush_size = this.value / 10;
 };
 
 //disable scrolling on mobile devices
@@ -572,8 +590,8 @@ function Update() {
   //brush stroke geometry generation
   let adj = vec2.create();
   vec2.sub(adj, worldspace_mousepos, prev_worldspace_mousepos);
-  vec2.normalize(adj,adj);
-  vec2.scale(adj,adj,2*brush_size);
+  vec2.normalize(adj, adj);
+  vec2.scale(adj, adj, 2 * brush_size);
   adj = vec2.fromValues(adj[1], -adj[0]);
   let moved =
     Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) +
