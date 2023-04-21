@@ -5,6 +5,12 @@ function draw() {
   context.canvas.width = window.innerWidth * 0.9;
   context.canvas.height = window.innerHeight * 0.9;
 
+  // Store the selected rectangle's coordinates and size
+  let selectionRect = null;
+
+  // Array of rectangles to be drawn on the canvas
+  let rectangles = [];
+
   var current = {
     //tracks attributes of the current mouse
     color: `hsl(0,0%,0%)`,
@@ -47,19 +53,39 @@ function draw() {
     current.lineWidth += 10;
   });
 
+  // Add a button to copy the selected rectangle
+  var copyBtn = document.getElementById("copy-btn");
+  copyBtn.addEventListener("click", () => {
+    // If a rectangle is selected, create a copy of it and add it to the rectangles array
+    if (selectionRect) {
+      rectangles.push({
+        x: selectionRect.x + 10,
+        y: selectionRect.y + 10,
+        width: selectionRect.width,
+        height: selectionRect.height,
+        color: selectionRect.color,
+      });
+      // Redraw the canvas with the new rectangle
+      drawRectangles();
+    }
+  });
+
+  // Add a button to delete the selected rectangle
+  var deleteBtn = document.getElementById("delete-btn");
+  deleteBtn.addEventListener("click", () => {
+    // If a rectangle is selected, remove it from the rectangles array and redraw the canvas
+    if (selectionRect) {
+      rectangles = rectangles.filter((rect) => rect !== selectionRect);
+      selectionRect = null;
+      drawRectangles();
+    }
+  });
+
   //eventlisteners that should track certain mouse movements
   canvas.addEventListener("mousedown", onMouseDown);
   canvas.addEventListener("mouseup", onMouseUp);
   canvas.addEventListener("mouseout", onMouseUp);
   canvas.addEventListener("mousemove", onMouseMove);
-
-  // var colorBtn = document.getElementById("color-btn");
-  // function changeColor() {
-  //   var c = "#" + Math.floor(Math.random() * 16777215).toString(16); // change line color https://css-tricks.com/snippets/javascript/random-hex-color/
-  //   current.color = c;
-  //   var existingStyle = colorBtn.getAttribute("style");
-  //   colorBtn.setAttribute("style", existingStyle + "; background-color: " + c);
-  // }
 
   //===============DRAW ON MOUSE MOVE STUFF===================//
   function drawLine(x0, y0, x1, y1, color) {
