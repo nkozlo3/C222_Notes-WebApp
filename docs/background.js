@@ -20,8 +20,6 @@ script.src = "webgl-demo.js";
 
 // listen for the click event on the text area with the id 'input'
 document.getElementById("input").addEventListener("click", function () {
-  // clear the textarea
-  document.getElementById("input").value = "";
   // hide the buttons with id 'newDrawingButton' and 'newCheckBoxButton'
   document.getElementById("newDrawingButton").style.display = "none";
   document.getElementById("newCheckBoxButton").style.display = "none";

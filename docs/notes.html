@@ -13,29 +13,29 @@
     <script src="storage.js" type="module" defer></script>
     <title>Your Notes</title>
     <link rel="stylesheet" href="./webgl.css" type="text/css" />
-    <link id="STYLE_" rel="stylesheet" href="style.css" />
+    <link id="STYLE_" rel="stylesheet" href="notes.css" />
   </head>
   <body>
-    <div id="wrapper">
-      <div id="defaultDiv">
-        <!-- Add an <a> to return to home page -->
-        <a href="../docs/" id="viewSavedNotesButton" class="SaveNote">
-          <i class="uil uil-backward">Home Page</i>
-        </a>
-        <!-- Add a button to clear notes -->
-        <button id="clearNotesButton" class="SaveNote" onclick="clearNotes()">
-          <i class="uil uil-trash-alt">Clear Notes</i>
-        </button>
-        <div id="retrievedNotesContainer">
-          <textarea
-            id="retrievedNotes"
-            placeholder="Your notes will appear here"
-            rows="20"
-            cols="100"
-            readonly
-          ></textarea>
-        </div>
-      </div>
+    <div id="notesWrapper">
+      <!-- Add an <a> to return to home page -->
+      <a href="../docs/" id="viewSavedNotesButton" class="SaveNote">
+        <i class="uil uil-backward">Home Page</i>
+      </a>
+      <!-- Add a button to clear notes -->
+      <button id="clearNotesButton" class="SaveNote" onclick="clearNotes()">
+        <i class="uil uil-trash-alt">Clear Notes</i>
+      </button>
+      <script>
+        function clearNotes() {
+          alert("clearNotesButton clicked");
+          // remove everything from notesArray
+          notesArray = [];
+          // save the updated list to local storage
+          localStorage.setItem("notesArray", JSON.stringify(notesArray));
+          // clear the input
+          document.getElementById("retrievedNotes").value = "";
+        }
+      </script>
     </div>
   </body>
 </html>

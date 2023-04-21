@@ -58,24 +58,39 @@ function loadNotes() {
   }
   // get the list from local storage
   var storedNotes = JSON.parse(localStorage.getItem("notesArray"));
-  
-  // for each item in the list
-  var str = "";
-  for (var i = 0; i < storedNotes.length; i++) {
-    // Differentiate between notes with a label for each note i.e. Note 1, Note 2, etc.
-    var label = "\n" + "Note " + (i + 1) + ":" + "\n";
-    str += label;
-    str += storedNotes[i];
-  }
-  document.getElementById("retrievedNotes").value = str;
-}
 
-document.getElementById("clearNotesButton").onclick = function () {
-  alert("clearNotesButton clicked");
-  // remove everything from notesArray
-  var clearedNotes = [];
-  // save the updated list to local storage
-  localStorage.setItem("notesArray", JSON.stringify(clearedNotes));
-  // clear the input
-  document.getElementById("retrievedNotes").value = "";
-};
+  // for each item in the list
+  for (var i = 0; i < storedNotes.length; i++) {
+    // if this item's value is empty, continue to the next item
+    if (storedNotes[i] == "") {
+      continue;
+    }
+
+    // create a new textarea with id 'retrievedNotes'
+    var retrievedNotes = document.createElement("textarea");
+    retrievedNotes.id = "retrievedNotes" + i;
+    retrievedNotes.class = "retrievedNotes";
+    retrievedNotes.value = storedNotes[i];
+    retrievedNotes.className = "retrievedNotes";
+    // add the new textarea to the page
+    document.getElementById("notesWrapper").appendChild(retrievedNotes);
+
+    // give the textarea an onblur event listener
+    retrievedNotes.addEventListener("blur", function () {
+      // get the index of the list item
+      var index = this.id;
+
+      // if this item's value is not empty
+      if (this.value != "") {
+        // remove the list item from local storage
+        storedNotes.splice(index, 1);
+        storedNotes.push(this.value);
+      } else {
+        storedNotes.splice(index, 1);
+      }
+
+      // save the updated list to local storage
+      localStorage.setItem("notesArray", JSON.stringify(storedNotes));
+    });
+  }
+}
