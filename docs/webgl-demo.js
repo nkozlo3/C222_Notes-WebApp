@@ -32,22 +32,26 @@ window.addEventListener("wheel", (event) => {
 //button for switching brush types
 document.getElementById("brush_tool_button").style.left = "1%";
 document.getElementById("brush_tool_button").style.top = "1%";
-document.getElementById("brush_tool_button").addEventListener("click", () =>
-{
+document.getElementById("brush_tool_button").addEventListener("click", () => {
   drawing_tool = !drawing_tool;
+});
+
+//button for eraser
+document.getElementById("eraser_button").style.left = "1%";
+document.getElementById("eraser_button").style.top = "31%";
+document.getElementById("eraser_button").addEventListener("click", () => {
+  pixel_brush_color = [255, 255, 255];
 });
 
 //button for changing brush color
 document.getElementById("color_button").style.left = "1%";
 document.getElementById("color_button").style.top = "11%";
-document.getElementById("color_button").addEventListener("click", () =>
-{
+document.getElementById("color_button").addEventListener("click", () => {
   pixel_brush_color = [Math.random(), Math.random(), Math.random()];
 });
 document.getElementById("clear_button").style.left = "1%";
 document.getElementById("clear_button").style.top = "21%";
-document.getElementById("clear_button").addEventListener("click", () =>
-{
+document.getElementById("clear_button").addEventListener("click", () => {
   stroke_vertex_data = [];
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
   gl.viewport(0, 0, frame_buffer_width, frame_buffer_height);
@@ -57,9 +61,8 @@ document.getElementById("clear_button").addEventListener("click", () =>
 });
 
 //slider for changing brush size
-document.getElementById("myRange").oninput = function()
-{
-  brush_size = this.value/10;
+document.getElementById("myRange").oninput = function () {
+  brush_size = this.value / 10;
 };
 
 //disable scrolling on mobile devices
@@ -585,8 +588,8 @@ function Update() {
   //brush stroke geometry generation
   let adj = vec2.create();
   vec2.sub(adj, worldspace_mousepos, prev_worldspace_mousepos);
-  vec2.normalize(adj,adj);
-  vec2.scale(adj,adj,2*brush_size);
+  vec2.normalize(adj, adj);
+  vec2.scale(adj, adj, 2 * brush_size);
   adj = vec2.fromValues(adj[1], -adj[0]);
   let moved =
     Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) +
@@ -595,7 +598,7 @@ function Update() {
   if (mouse_down && moved && drawing_tool == 1) {
     if (!prev_mouse_down) {
       stroke_index += 1;
-      stroke_vertex_data.push([pixel_brush_color.concat(1),[]]);
+      stroke_vertex_data.push([pixel_brush_color.concat(1), []]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
@@ -603,19 +606,31 @@ function Update() {
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1]);
     } else {
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] + prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] + prev_adj[1]
+      );
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] + adj[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] + adj[1]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] - adj[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] - adj[1]);
 
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] + prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] + prev_adj[1]
+      );
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] - adj[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] - adj[1]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[0] - prev_adj[0]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[1] - prev_adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] - prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] - prev_adj[1]
+      );
     }
     prev_adj = vec2.clone(adj);
     prev_worldspace_mousepos = vec2.clone(worldspace_mousepos);
@@ -694,8 +709,7 @@ function Draw() {
 
   //render the the vector brush strokes in order of creation
   gl.disable(gl.DEPTH_TEST);
-  for(let i = 0 ; i < stroke_vertex_data.length; i++)
-  {
+  for (let i = 0; i < stroke_vertex_data.length; i++) {
     gl.bufferData(
       gl.ARRAY_BUFFER,
       new Float32Array(stroke_vertex_data[i][1]),
