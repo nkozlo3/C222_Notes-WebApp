@@ -36,6 +36,13 @@ document.getElementById("brush_tool_button").addEventListener("click", () => {
   drawing_tool = !drawing_tool;
 });
 
+//button for eraser
+document.getElementById("eraser_button").style.left = "1%";
+document.getElementById("eraser_button").style.top = "31%";
+document.getElementById("eraser_button").addEventListener("click", () => {
+  pixel_brush_color = [255, 255, 255];
+});
+
 //button for changing brush color
 document.getElementById("color_button").style.left = "1%";
 document.getElementById("color_button").style.top = "11%";
@@ -81,9 +88,8 @@ document.getElementById("myRange").oninput = function () {
 });
 
 //slider for changing brush size
-document.getElementById("myRange").oninput = function()
-{
-  brush_size = this.value/10;
+document.getElementById("myRange").oninput = function () {
+  brush_size = this.value / 10;
 };
 
 //disable scrolling on mobile devices
@@ -619,7 +625,7 @@ function Update() {
   if (mouse_down && moved && drawing_tool == 1) {
     if (!prev_mouse_down) {
       stroke_index += 1;
-      stroke_vertex_data.push([pixel_brush_color.concat(1),[]]);
+      stroke_vertex_data.push([pixel_brush_color.concat(1), []]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
@@ -627,19 +633,31 @@ function Update() {
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1]);
     } else {
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] + prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] + prev_adj[1]
+      );
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] + adj[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] + adj[1]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] - adj[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] - adj[1]);
 
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[1] + prev_adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] + prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] + prev_adj[1]
+      );
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] - adj[0]);
       stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] - adj[1]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[0] - prev_adj[0]);
-      stroke_vertex_data[stroke_index][1].push(prev_worldspace_mousepos[1] - prev_adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] - prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] - prev_adj[1]
+      );
     }
     prev_adj = vec2.clone(adj);
     prev_worldspace_mousepos = vec2.clone(worldspace_mousepos);
@@ -718,8 +736,7 @@ function Draw() {
 
   //render the the vector brush strokes in order of creation
   gl.disable(gl.DEPTH_TEST);
-  for(let i = 0 ; i < stroke_vertex_data.length; i++)
-  {
+  for (let i = 0; i < stroke_vertex_data.length; i++) {
     gl.bufferData(
       gl.ARRAY_BUFFER,
       new Float32Array(stroke_vertex_data[i][1]),
