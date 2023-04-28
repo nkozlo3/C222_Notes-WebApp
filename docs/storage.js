@@ -73,7 +73,7 @@ function loadNotes() {
     retrievedNotes.value = storedNotes[i];
     retrievedNotes.className = "retrievedNotes";
     // add the new textarea to the page
-    document.getElementById("notesWrapper").appendChild(retrievedNotes);
+    document.getElementById("notesWrapper").prepend(retrievedNotes);
 
     // give the textarea an onblur event listener
     retrievedNotes.addEventListener("blur", function () {

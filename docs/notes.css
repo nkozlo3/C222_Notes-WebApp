@@ -68,3 +68,11 @@ body {
 #viewSavedNotesButton:active {
   box-shadow: 2px 2px 5px #0a908d;
 }
+
+#newNoteButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#newNoteButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}

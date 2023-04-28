@@ -21,19 +21,36 @@
       <a href="../docs/" id="viewSavedNotesButton" class="SaveNote">
         <i class="uil uil-backward">Home Page</i>
       </a>
+      <!-- Add a button for a new note -->
+      <button id="newNoteButton" class="retrievedNotes" onclick="saveNewNote()">
+        <i class="uil uil-plus"></i>
+      </button>
       <!-- Add a button to clear notes -->
       <button id="clearNotesButton" class="SaveNote" onclick="clearNotes()">
         <i class="uil uil-trash-alt">Clear Notes</i>
       </button>
       <script>
         function clearNotes() {
-          alert("clearNotesButton clicked");
           // remove everything from notesArray
           notesArray = [];
           // save the updated list to local storage
           localStorage.setItem("notesArray", JSON.stringify(notesArray));
-          // clear the input
-          document.getElementById("retrievedNotes").value = "";
+          // reload the page
+          location.reload();
+        }
+        function saveNewNote() {
+          saveNote(" ");
+          // reload the page
+          location.reload();
+        }
+        // function to save a list item to local storage with one argument, the list string
+        function saveNote(listString) {
+          // get the list from local storage
+          var storedNotes = JSON.parse(localStorage.getItem("notesArray"));
+
+          storedNotes.push(listString);
+          // save the updated list to local storage
+          localStorage.setItem("notesArray", JSON.stringify(storedNotes));
         }
       </script>
     </div>
