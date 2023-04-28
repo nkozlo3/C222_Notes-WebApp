@@ -78,19 +78,21 @@ function loadNotes() {
     // give the textarea an onblur event listener
     retrievedNotes.addEventListener("blur", function () {
       // get the index of the list item
-      var index = this.id;
+      var index = this.id.charAt(this.id.length - 1);
 
       // if this item's value is not empty
       if (this.value != "") {
         // remove the list item from local storage
         storedNotes.splice(index, 1);
+        // insert the new value at the index
         storedNotes.push(this.value);
+        localStorage.setItem("notesArray", JSON.stringify(storedNotes));
+        location.reload();
       } else {
         storedNotes.splice(index, 1);
+        localStorage.setItem("notesArray", JSON.stringify(storedNotes));
+        location.reload();
       }
-
-      // save the updated list to local storage
-      localStorage.setItem("notesArray", JSON.stringify(storedNotes));
     });
   }
 }
