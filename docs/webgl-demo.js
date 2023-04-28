@@ -29,6 +29,42 @@ window.addEventListener("wheel", (event) => {
   }
 });
 
+//button for switching brush types
+document.getElementById("brush_tool_button").style.left = "1%";
+document.getElementById("brush_tool_button").style.top = "1%";
+document.getElementById("brush_tool_button").addEventListener("click", () => {
+  drawing_tool = !drawing_tool;
+});
+
+//button for eraser
+document.getElementById("eraser_button").style.left = "1%";
+document.getElementById("eraser_button").style.top = "31%";
+document.getElementById("eraser_button").addEventListener("click", () => {
+  pixel_brush_color = [255, 255, 255];
+});
+
+//button for changing brush color
+document.getElementById("color_button").style.left = "1%";
+document.getElementById("color_button").style.top = "11%";
+document.getElementById("color_button").addEventListener("click", () => {
+  pixel_brush_color = [Math.random(), Math.random(), Math.random()];
+});
+document.getElementById("clear_button").style.left = "1%";
+document.getElementById("clear_button").style.top = "21%";
+document.getElementById("clear_button").addEventListener("click", () => {
+  stroke_vertex_data = [];
+  gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+  gl.viewport(0, 0, frame_buffer_width, frame_buffer_height);
+  gl.clearColor(1, 1, 1, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT);
+  stroke_index = -1;
+});
+
+//slider for changing brush size
+document.getElementById("myRange").oninput = function () {
+  brush_size = this.value / 10;
+};
+
 //disable scrolling on mobile devices
 document.addEventListener(
   "touchmove",
@@ -87,23 +123,6 @@ let stroke_vertex_data = [];
 
 //buffer for the pencil strokes - for webgl (gpu)
 let stroke_vertex_buffer = gl.createBuffer();
-
-//clear the drawing on spacebar pressed
-window.addEventListener(
-  "keypress",
-  function (e) {
-    if (e.key == " ") {
-      stroke_vertex_data = [];
-    }
-    if (e.key == "2") {
-      drawing_tool = !drawing_tool;
-    }
-    if (e.key == "3") {
-      pixel_brush_color = [Math.random(), Math.random(), Math.random()];
-    }
-  },
-  false
-);
 
 //vertex shader
 let solid_color_VS = gl.createShader(gl.VERTEX_SHADER);
@@ -278,6 +297,7 @@ uniform sampler2D u_texture;
 uniform vec2 cursor_pos;
 uniform vec2 prev_cursor_pos;
 uniform bool mouse_down;
+uniform float brush_size;
 
 varying vec2 uv;
 
@@ -297,7 +317,7 @@ float sdf_cap(vec2 p, vec2 a, vec2 b, float r)
 
 void main()
 {
-  float dist = sdf_cap(gl_FragCoord.xy, prev_cursor_pos, cursor_pos, 3. - 0.5);
+  float dist = sdf_cap(gl_FragCoord.xy, prev_cursor_pos, cursor_pos, brush_size - 0.5);
   dist = 1. - dist;
   dist = clamp(dist, 0., 1.);
   vec3 input_color = texture2D(u_texture, uv).xyz;
@@ -354,6 +374,10 @@ let pixel_drawer_prev_cursor_pos_uniform = gl.getUniformLocation(
 let pixel_drawer_mouse_down_uniform = gl.getUniformLocation(
   pixel_drawer_shader_program,
   "mouse_down"
+);
+let pixel_drawer_brush_size_uniform = gl.getUniformLocation(
+  pixel_drawer_shader_program,
+  "brush_size"
 );
 
 // create render texture
@@ -506,6 +530,34 @@ let drawing_tool = 0;
 let pixel_brush_color = [0, 0, 0];
 let pixel_cursor = vec2.create();
 let prev_pixel_cursor = vec2.create();
+let brush_size = 3;
+let stroke_index = -1;
+
+// BEGIN -- custom color picker
+const redSlider = document.getElementById("red-slider");
+const greenSlider = document.getElementById("green-slider");
+const blueSlider = document.getElementById("blue-slider");
+const colorPreview = document.getElementById("color-preview");
+const rgbLabel = document.getElementById("rgb-label");
+
+function updateColor() {
+  const red = redSlider.value;
+  const green = greenSlider.value;
+  const blue = blueSlider.value;
+  const rgbColor = `rgb(${red}, ${green}, ${blue})`;
+  colorPreview.style.backgroundColor = rgbColor; // Update preview color
+  pixel_brush_color = [
+    parseInt(red) / 255.0,
+    parseInt(green) / 255.0,
+    parseInt(blue) / 255.0,
+  ]; // Update rgb brush color with slider color
+  rgbLabel.textContent = `red = ${red}, green = ${green}, blue = ${blue})`;
+}
+
+redSlider.addEventListener("input", updateColor);
+greenSlider.addEventListener("input", updateColor);
+blueSlider.addEventListener("input", updateColor);
+//END -- custom color picker
 
 //update function
 function Update() {
@@ -537,52 +589,61 @@ function Update() {
   let adj = vec2.create();
   vec2.sub(adj, worldspace_mousepos, prev_worldspace_mousepos);
   vec2.normalize(adj, adj);
-  vec2.scale(adj, adj, 6);
+  vec2.scale(adj, adj, 2 * brush_size);
   adj = vec2.fromValues(adj[1], -adj[0]);
   let moved =
     Math.abs(worldspace_mousepos[0] - prev_worldspace_mousepos[0]) +
       Math.abs(worldspace_mousepos[1] - prev_worldspace_mousepos[1]) >
     0;
   if (mouse_down && moved && drawing_tool == 1) {
-    if (stroke_vertex_data.length < 6 || !prev_mouse_down) {
-      stroke_vertex_data.push(worldspace_mousepos[0]);
-      stroke_vertex_data.push(worldspace_mousepos[1]);
-      stroke_vertex_data.push(worldspace_mousepos[0]);
-      stroke_vertex_data.push(worldspace_mousepos[1]);
-      stroke_vertex_data.push(worldspace_mousepos[0]);
-      stroke_vertex_data.push(worldspace_mousepos[1]);
+    if (!prev_mouse_down) {
+      stroke_index += 1;
+      stroke_vertex_data.push([pixel_brush_color.concat(1), []]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1]);
     } else {
-      stroke_vertex_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_vertex_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
-      stroke_vertex_data.push(worldspace_mousepos[0] + adj[0]);
-      stroke_vertex_data.push(worldspace_mousepos[1] + adj[1]);
-      stroke_vertex_data.push(worldspace_mousepos[0] - adj[0]);
-      stroke_vertex_data.push(worldspace_mousepos[1] - adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] + prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] + prev_adj[1]
+      );
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] + adj[0]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] + adj[1]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] - adj[0]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] - adj[1]);
 
-      stroke_vertex_data.push(prev_worldspace_mousepos[0] + prev_adj[0]);
-      stroke_vertex_data.push(prev_worldspace_mousepos[1] + prev_adj[1]);
-      stroke_vertex_data.push(worldspace_mousepos[0] - adj[0]);
-      stroke_vertex_data.push(worldspace_mousepos[1] - adj[1]);
-      stroke_vertex_data.push(prev_worldspace_mousepos[0] - prev_adj[0]);
-      stroke_vertex_data.push(prev_worldspace_mousepos[1] - prev_adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] + prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] + prev_adj[1]
+      );
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[0] - adj[0]);
+      stroke_vertex_data[stroke_index][1].push(worldspace_mousepos[1] - adj[1]);
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[0] - prev_adj[0]
+      );
+      stroke_vertex_data[stroke_index][1].push(
+        prev_worldspace_mousepos[1] - prev_adj[1]
+      );
     }
     prev_adj = vec2.clone(adj);
     prev_worldspace_mousepos = vec2.clone(worldspace_mousepos);
   }
   prev_mouse_down = mouse_down;
-
-  gl.bufferData(
-    gl.ARRAY_BUFFER,
-    new Float32Array(stroke_vertex_data),
-    gl.STATIC_DRAW
-  );
 }
 
 //drawing function
 function Draw() {
-  //draw to the framebuffer pixels
+  //DRAW TO FRAMEBUFFER
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
   gl.bindTexture(gl.TEXTURE_2D, pixel_image_buffer);
+  //copy framebuffer to texture for a cyclical rendering of pixel brush lines
   gl.copyTexImage2D(
     gl.TEXTURE_2D,
     0,
@@ -595,9 +656,11 @@ function Draw() {
   );
   gl.viewport(0, 0, frame_buffer_width, frame_buffer_height);
 
+  //for debugging purposes - if the pixel image isn't fully filled in, bright magenta will show up
   gl.clearColor(1, 0, 1, 1);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
+  //draw pixel brush strokes
   gl.useProgram(pixel_drawer_shader_program);
   gl.uniform3fv(pixel_drawer_color_uniform, pixel_brush_color);
   gl.bindBuffer(gl.ARRAY_BUFFER, square_vertex_buffer);
@@ -613,10 +676,11 @@ function Draw() {
     pixel_drawer_mouse_down_uniform,
     mouse_down && drawing_tool == 0
   );
+  gl.uniform1f(pixel_drawer_brush_size_uniform, brush_size);
   prev_pixel_cursor = vec2.fromValues(pixel_cursor[0], pixel_cursor[1]);
   gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
-  //draw to the actual screen:
+  //DRAW TO CANVAS (REAL SCREEN)
   gl.bindFramebuffer(gl.FRAMEBUFFER, null);
   gl.bindTexture(gl.TEXTURE_2D, pixel_drawing_texture);
 
@@ -641,13 +705,22 @@ function Draw() {
   gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
   gl.useProgram(solid_color_shader_program);
-
-  gl.uniform4fv(solid_color_color_uniform, [0.5, 0.5, 0.5, 1]);
-
   gl.bindBuffer(gl.ARRAY_BUFFER, stroke_vertex_buffer);
-  gl.vertexAttribPointer(solid_color_vertex_attrib, 2, gl.FLOAT, false, 0, 0);
-  gl.uniformMatrix4fv(solid_color_matrix_uniform, false, world_to_clip);
-  gl.drawArrays(gl.TRIANGLES, 0, stroke_vertex_data.length / 2);
+
+  //render the the vector brush strokes in order of creation
+  gl.disable(gl.DEPTH_TEST);
+  for (let i = 0; i < stroke_vertex_data.length; i++) {
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array(stroke_vertex_data[i][1]),
+      gl.DYNAMIC_DRAW
+    );
+    gl.uniform4fv(solid_color_color_uniform, stroke_vertex_data[i][0]);
+    gl.vertexAttribPointer(solid_color_vertex_attrib, 2, gl.FLOAT, false, 0, 0);
+    gl.uniformMatrix4fv(solid_color_matrix_uniform, false, world_to_clip);
+    gl.drawArrays(gl.TRIANGLES, 0, stroke_vertex_data[i][1].length / 2);
+  }
+
   gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
@@ -660,9 +733,12 @@ function FrameUpdate() {
 
 //event listener to correctly resize the webgl canvas
 window.addEventListener("resize", () => {
+  //update canvas
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
+  //make sure gl knows the correct dimensions as well - for rendering
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+  //update the camera matrix to match the new aspect ratio
   pixel_to_clip = mat4.create();
   mat4.scale(pixel_to_clip, pixel_to_clip, [
     canvas.width / 2,
@@ -672,7 +748,8 @@ window.addEventListener("resize", () => {
   mat4.translate(pixel_to_clip, pixel_to_clip, [1, -1, 0]);
   mat4.invert(pixel_to_clip, pixel_to_clip);
 
-  let temp = [clip_to_world[12], clip_to_world[13], clip_to_world[14]]; //preserve camera position
+  //store camera position before
+  let temp = [clip_to_world[12], clip_to_world[13], clip_to_world[14]];
 
   clip_to_world = mat4.create();
   mat4.scale(clip_to_world, clip_to_world, [
@@ -680,6 +757,7 @@ window.addEventListener("resize", () => {
     canvas.height / 2,
     1,
   ]);
+  //recalll camera position
   clip_to_world[12] = temp[0];
   clip_to_world[13] = temp[1];
   clip_to_world[14] = temp[2];

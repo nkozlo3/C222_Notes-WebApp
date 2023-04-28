@@ -2,43 +2,66 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Whiteboard App</title>
-    <link href="whiteboard-demo.css" rel="stylesheet" />
+    <title>Whiteboard</title>
+    <link
+      id="STYLE_"
+      href="whiteboard-demo.css"
+      res="stylesheet"
+      type="text/css"
+    />
   </head>
   <body>
-    <div class="wrapper">
-      <div class="sidebar">
-        <h2>Options</h2>
-        <ul>
-          <li><a href="#">Paint</a></li>
-          <li><a href="#">Notes</a></li>
-          <li><a href="#">List</a></li>
-        </ul>
-      </div>
+    <script src="whiteboard-demo.js" type="module" defer></script>
+    <canvas id="whiteboardCanvas" class="whiteboard"></canvas>
 
-      <div class="main">
-        <h1>Whiteboard App</h1>
-        <canvas id="whiteboardCanvas" class="whiteboard"></canvas>
-
-        <div class="buttons">
-          <button id="clear-btn" class="btn" type="button">Clear</button>
-          <button id="eraser-btn" class="btn" type="button">
-            Switch to Eraser
-          </button>
-          <button id="paintbrush-btn" class="btn" type="button">
-            Switch to Paintbrush
-          </button>
-          <button id="brush-size-btn" class="btn" type="button">
-            Increase brush/eraser size by 10px
-          </button>
-        </div>
-
-        <div class="ColorWheel" id="wheelPicker"></div>
-
-        <!-- -div and script is for the color picker
-            <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
-            <div class="ColorPicker" id="colorPicker"></div> -->
-      </div>
+    <!-- HTML code for buttons-->
+    <div class="buttons">
+      <button id="clear-btn" class="btn" type="button">Clear</button>
+      <button id="eraser-btn" class="btn" type="button">
+        Switch to Eraser
+      </button>
+      <button id="paintbrush-btn" class="btn" type="button">
+        Switch to Paintbrush
+      </button>
+      <button id="brush-size-btn" class="btn" type="button">
+        Increase brush/eraser size by 10px
+      </button>
+      <button id="generate-square-btn" class="btn" type="button">
+        Generate Square
+      </button>
+      <select id="square-size-select">
+        <option value="small">Small</option>
+        <option value="medium">Medium</option>
+        <option value="large">Large</option>
+      </select>
+      <label for="square-fill-select">Fill:</label>
+      <select id="square-fill-select">
+        <option value="filled">Filled</option>
+        <option value="not-filled">Not Filled</option>
+      </select>
+      <label for="square-amount-select">Amount:</label>
+      <select id="square-amount-select">
+        <option value="1">1</option>
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="25">25</option>
+      </select>
     </div>
+    <!-- HTML code for color slider -->
+
+    <div id="color-preview">
+      <input
+        type="range"
+        id="color-slider"
+        min="0"
+        max="360"
+        step="0.02"
+        value="0"
+      />
+    </div>
+
+    <!-- -div and script is for the color picker
+        <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+        <div class="ColorPicker" id="colorPicker"></div> -->
   </body>
 </html>
