@@ -12,7 +12,7 @@ README
 - The role of the notes page was to allow users to take and save notes. Again, the notes component is separate to both the checklist and whiteboard, and it was wrote in JavaScript, HTML, and CSS.
 
 ## Installation instructions:
-The application is a website. There are no installation instructions besides cloning the github and running live server on vscode if you'd like to run the app on localhost. 
+The application is a website (link: https://nkozlo3.github.io/C222_Notes-WebApp/). There are no installation instructions besides cloning the github and running live server on vscode if you'd like to run the app on localhost. 
 
 ## Group Members and Roles:
 - Roles were very relaxed and people collaborated on basically everything throughout the project.
