@@ -7,6 +7,8 @@ document.body.style.backgroundColor = "#d1f2eb";
 
 // hide the non-default divs
 document.getElementById("drawingDiv").style.display = "none";
+document.getElementById("drawing_overlay").style.display = "none";
+document.getElementById("color-container").style.display = "none";
 document.getElementById("checkListDiv").style.display = "none";
 // hide the div with id 'drawing_overlay'. We do not want to show this until the user wants to draw
 document.getElementById("drawing_overlay").style.display = "none";
@@ -72,6 +74,7 @@ document
     // hide irrelevant divs
     document.getElementById("defaultDiv").style.display = "none";
     document.getElementById("drawingDiv").style.display = "block";
+    document.getElementById("color-container").style.display = "block";
 
     // set the div with id 'drawing_overlay' to be visible
     document.getElementById("drawing_overlay").style.display = "block";
