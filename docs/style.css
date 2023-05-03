@@ -112,6 +112,30 @@
   box-shadow: 2px 2px 5px #0a908d;
 }
 
+.drawing_UI {
+  position: absolute;
+  width: 10%;
+  height: 5%;
+  z-index: 5;
+  background-color: rgb(255, 255, 255);
+  color: rgb(82, 82, 82);
+  font-size: 100%;
+  font-weight: bold;
+  font-family: Arial;
+  opacity: 0.8;
+  border: #575757 3px solid;
+  border-radius: 15px;
+  user-select: none;
+}
+
+.drawing_UI:hover {
+  background-color: rgb(202, 202, 202);
+}
+
+.drawing_UI:active {
+  background-color: rgb(179, 179, 179);
+}
+
 .standardSave {
   z-index: 2;
   background-color: transparent;
@@ -220,4 +244,43 @@
 #myRange {
   top: 5%;
   left: 1%;
+}
+
+/* viewSavedNotesLink CSS */
+#viewSavedNotesButton {
+  position: absolute;
+  width: 10%;
+  height: 6%;
+  top: 92.35%;
+  left: 87%;
+  z-index: 1;
+  background-color: transparent;
+  font-size: 100%;
+  /* Text underline: None */
+  text-decoration: none;
+}
+#viewSavedNotesButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#viewSavedNotesButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+/* How the <a> tag text acts between clicks */
+a {
+  color: inherit;
+} /* Unvisited link  */
+a:visited {
+  color: inherit;
+} /* Visited link    */
+a:hover {
+  color: inherit;
+} /* Mouse over link */
+a:active {
+  color: #0000ff;
+} /* Selected link   */
+
+/* Set background color of the page */
+body {
+  background-color: #a3f5f4;
 }

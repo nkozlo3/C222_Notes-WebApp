@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <meta charset="UTF-8" />
+    <link
+      rel="stylesheet"
+      href="https://unicons.iconscout.com/release/v4.0.0/css/line.css"
+    />
+    <script src="storage.js" type="module" defer></script>
+    <title>Your Notes</title>
+    <link rel="stylesheet" href="./webgl.css" type="text/css" />
+    <link id="STYLE_" rel="stylesheet" href="notes.css" />
+  </head>
+  <body>
+    <div id="notesWrapper">
+      <!-- Add an <a> to return to home page -->
+      <a href="../docs/" id="viewSavedNotesButton" class="SaveNote">
+        <i class="uil uil-backward">Home Page</i>
+      </a>
+      <!-- Add a button for a new note -->
+      <button id="newNoteButton" class="retrievedNotes" onclick="saveNewNote()">
+        <i class="uil uil-plus"></i>
+      </button>
+      <!-- Add a button to clear notes -->
+      <button id="clearNotesButton" class="SaveNote" onclick="clearNotes()">
+        <i class="uil uil-trash-alt">Clear Notes</i>
+      </button>
+      <script>
+        function clearNotes() {
+          // remove everything from notesArray
+          notesArray = [];
+          // save the updated list to local storage
+          localStorage.setItem("notesArray", JSON.stringify(notesArray));
+          // reload the page
+          location.reload();
+        }
+        function saveNewNote() {
+          saveNote(" ");
+          // reload the page
+          location.reload();
+        }
+        // function to save a list item to local storage with one argument, the list string
+        function saveNote(listString) {
+          // get the list from local storage
+          var storedNotes = JSON.parse(localStorage.getItem("notesArray"));
+
+          storedNotes.push(listString);
+          // save the updated list to local storage
+          localStorage.setItem("notesArray", JSON.stringify(storedNotes));
+        }
+      </script>
+    </div>
+  </body>
+</html>

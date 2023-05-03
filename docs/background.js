@@ -8,6 +8,11 @@ document.body.style.backgroundColor = "#d1f2eb";
 // hide the non-default divs
 document.getElementById("drawingDiv").style.display = "none";
 document.getElementById("checkListDiv").style.display = "none";
+// hide the div with id 'drawing_overlay'. We do not want to show this until the user wants to draw
+document.getElementById("drawing_overlay").style.display = "none";
+
+// hide the button with id 'saveButton'
+document.getElementById("saveButton").style.display = "none";
 
 // create a script element so we only draw when the user wants to
 var script = document.createElement("script");
@@ -15,15 +20,15 @@ script.src = "webgl-demo.js";
 
 // listen for the click event on the text area with the id 'input'
 document.getElementById("input").addEventListener("click", function () {
-  // clear the textarea
-  document.getElementById("input").value = "";
   // hide the buttons with id 'newDrawingButton' and 'newCheckBoxButton'
   document.getElementById("newDrawingButton").style.display = "none";
   document.getElementById("newCheckBoxButton").style.display = "none";
 
   // create a button element
-  let button = document.createElement("button");
-  button.id = "save";
+  let button = document.getElementById("saveButton");
+  // display the button with id 'saveButton'
+  button.style.display = "block";
+  button.id = "saveButton";
   button.innerText = "Save Note";
 
   // set the style of the button to position it properly, change its color, etc
@@ -53,7 +58,8 @@ document.getElementById("input").addEventListener("click", function () {
 
 // when the textarea with id 'input' loses focus, remove the button with id 'save'
 document.getElementById("input").addEventListener("blur", function () {
-  document.getElementById("save").remove();
+  // hide the button with id 'saveButton'
+  document.getElementById("saveButton").style.display = "none";
   // unhide the buttons with id 'newDrawingButton' and 'newCheckBoxButton'
   document.getElementById("newDrawingButton").style.display = "block";
   document.getElementById("newCheckBoxButton").style.display = "block";
@@ -63,8 +69,12 @@ document.getElementById("input").addEventListener("blur", function () {
 document
   .getElementById("newDrawingButton")
   .addEventListener("click", function () {
+    // hide irrelevant divs
     document.getElementById("defaultDiv").style.display = "none";
     document.getElementById("drawingDiv").style.display = "block";
+
+    // set the div with id 'drawing_overlay' to be visible
+    document.getElementById("drawing_overlay").style.display = "block";
     // append the script file "webgl-demo.js" to the body
     document.body.appendChild(script);
   });
@@ -73,6 +83,7 @@ document.getElementById("saveDrawing").addEventListener("click", function () {
   // TODO: figure out how to save the drawing so it can be retrieved later
   document.getElementById("defaultDiv").style.display = "block";
   document.getElementById("drawingDiv").style.display = "none";
+  document.getElementById("drawing_overlay").style.display = "none";
   // remove the script file "webgl-demo.js" from the body
   document.body.removeChild(script);
   // refresh the page to clear the canvas

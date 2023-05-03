@@ -1,0 +1,78 @@
+body {
+  background-color: #a3f5f4;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 100%;
+  color: #000000;
+  text-align: center;
+  margin: 0;
+  padding: 24px;
+  overflow: hidden;
+}
+
+/* clearNotesButton CSS */
+#clearNotesButton {
+  position: absolute;
+  width: 10%;
+  height: 6%;
+  top: 90%;
+  left: 10%;
+  z-index: 1;
+  background-color: transparent;
+  font-size: 100%;
+  text-align: left;
+  border: none;
+}
+#clearNotesButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#clearNotesButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+
+#notesWrapper {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 200px);
+  padding: 1%;
+  grid-gap: 100px;
+}
+
+.retrievedNotes {
+  z-index: 1;
+  background-color: transparent;
+  display: -webkit-flex;
+  font-size: 100%;
+  outline: 1px solid white;
+  height: 450%;
+  width: 140%;
+  border-radius: 3px;
+  padding: 1px;
+}
+/* viewSavedNotesLink CSS */
+#viewSavedNotesButton {
+  position: absolute;
+  width: 10%;
+  height: 6%;
+  top: 92.35%;
+  left: 87%;
+  z-index: 1;
+  background-color: transparent;
+  font-size: 100%;
+  /* Text underline: None */
+  text-decoration: none;
+}
+#viewSavedNotesButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#viewSavedNotesButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
+
+#newNoteButton:hover {
+  cursor: pointer;
+  background-color: #0a908d;
+}
+#newNoteButton:active {
+  box-shadow: 2px 2px 5px #0a908d;
+}
