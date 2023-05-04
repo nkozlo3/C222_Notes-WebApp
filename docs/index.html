@@ -19,7 +19,7 @@
     ></script>
     <script src="background.js" type="module" defer></script>
     <script src="storage.js" type="module" defer></script>
-    <script src="webgl-demo.js" type="module" defer></script>
+    <script src="checkList.js" type="module" defer></script>
   </head>
   <!--Add a div to preserve aspect ratio across devices and screen sizes-->
   <body>
@@ -85,11 +85,17 @@
         <button id="newCheckBoxButton" class="StandardButton">
           <i class="uil uil-check-square"></i>
         </button>
+        <!-- add button to save a note -->
+        <button id="saveButton" class="standardSave">Save</button>
         <!-- add a button for a new drawing note to the page -->
         <button id="newDrawingButton" class="StandardButton">
           <i class="uil uil-pen"></i>
           <html></html>
         </button>
+        <!-- Add a button to view saved notes to the page -->
+        <a href="notes.html" id="viewSavedNotesButton" class="SaveNote">
+          <i class="uil uil-file-alt">Saved Notes</i>
+        </a>
       </div>
       <!-- div for drawing mode -->
       <div id="drawingDiv">

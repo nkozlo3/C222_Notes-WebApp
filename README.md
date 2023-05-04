@@ -1,3 +1,26 @@
+README
+
+# Final Presentation Information:
+
+## Summary of Presentation Introduction:
+- WebWhiteboard is an online website that allows users to draw, make notes and express creativity. The application is a simple and easy to use note taking app where people can The main benefits of our app in comparison to other web paint applications is that there are no constraints on our application, from infinite zoom to unlimited drawing and checklist capabilities users can let their creativity run wild.
+
+## Describes technical architecture:
+- There are three main components to our Web application. We have a whiteboard where you can draw using any color in the RGB spectrum using either a pixel brush or a vector brush which comes with infinite zoom. We have a checklist that does exactly what you would expect it to do, allows you to make a checklist and check them off or remove them when you are finished. Finally, we have a notes page where you can add, edit, and remove notes for yourself. 
+- The role of the whiteboard is to allow the user to make drawings. It is separate to the checklist and the notes page. The functionality was wrote in JavaScript with HTML and CSS being used to format the drawing space and buttons around it.
+- The role of the checklist was to allow the user to make a checklist and check off events as they go. The checklist does not interact with the other components of our web application. The functionality, similarly to the whiteboard was wrote in JavaScript, HTML, and CSS.
+- The role of the notes page was to allow users to take and save notes. Again, the notes component is separate to both the checklist and whiteboard, and it was wrote in JavaScript, HTML, and CSS.
+
+## Installation instructions:
+The application is a website (link: https://nkozlo3.github.io/C222_Notes-WebApp/). There are no installation instructions besides cloning the github and running live server on vscode if you'd like to run the app on localhost. 
+
+## Group Members and Roles:
+- Roles were very relaxed and people collaborated on basically everything throughout the project.
+- Colsen Stiles (frontend, webgl canvas / drawing functionalities)
+- Neil Kozlowski (frontend, notes functionality, checklists)
+- Matthew Bosch (backend, color slider / drawing functionalities)
+- Ananth Hariharan (backend / notes functionality)
+
 # Project Proposal:
 
 ## Pitch
