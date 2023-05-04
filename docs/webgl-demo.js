@@ -29,6 +29,10 @@ window.addEventListener("wheel", (event) => {
   }
 });
 
+document.getElementById("red-slider").style.background = "linear-gradient(to right,black,rgb(225,0,0))";
+document.getElementById("green-slider").style.background = "linear-gradient(to right,black,rgb(0,255,0))";
+document.getElementById("blue-slider").style.background = "linear-gradient(to right,black,rgb(0,0,255))";
+
 //button for switching brush types
 document.getElementById("brush_tool_button").style.left = "1%";
 document.getElementById("brush_tool_button").style.top = "1%";
@@ -38,19 +42,13 @@ document.getElementById("brush_tool_button").addEventListener("click", () => {
 
 //button for eraser
 document.getElementById("eraser_button").style.left = "1%";
-document.getElementById("eraser_button").style.top = "31%";
+document.getElementById("eraser_button").style.top = "21%";
 document.getElementById("eraser_button").addEventListener("click", () => {
-  pixel_brush_color = [255, 255, 255];
+  pixel_brush_color = [1, 1, 1];
 });
 
-//button for changing brush color
-document.getElementById("color_button").style.left = "1%";
-document.getElementById("color_button").style.top = "11%";
-document.getElementById("color_button").addEventListener("click", () => {
-  pixel_brush_color = [Math.random(), Math.random(), Math.random()];
-});
 document.getElementById("clear_button").style.left = "1%";
-document.getElementById("clear_button").style.top = "21%";
+document.getElementById("clear_button").style.top = "11%";
 document.getElementById("clear_button").addEventListener("click", () => {
   stroke_vertex_data = [];
   gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
@@ -62,7 +60,7 @@ document.getElementById("clear_button").addEventListener("click", () => {
 
 //slider for changing brush size
 document.getElementById("myRange").oninput = function () {
-  brush_size = this.value / 10;
+  brush_size = 2 ** (this.value / 15);
 };
 
 //disable scrolling on mobile devices
@@ -73,6 +71,15 @@ document.addEventListener(
   },
   { passive: false }
 );
+
+document.getElementById("rgb_preview").onmouseover = function () {
+  document.getElementById("color-preview").style.display = "block";
+};
+
+document.getElementById("color-preview").onmouseleave = function (e) {
+  console.log(e.target.id);
+  document.getElementById("color-preview").style.display = "none";
+};
 
 //initialize the canvas to the size of the screen
 document.getElementById("glcanvas").height = window.innerHeight;
@@ -214,13 +221,15 @@ uniform sampler2D u_texture;
 uniform vec2 page_resolution;
 uniform vec2 mouse_pos;
 
+uniform float brush_size;
+
 void main()
 {
   vec2 UV = uv * page_resolution;
   vec3 col = texture2D(u_texture, uv).xyz;
-  if(length(UV - mouse_pos) < 4.)
+  if(length(UV - mouse_pos) < brush_size + 0.5)
   {
-    if(length(UV - mouse_pos) > 3.)
+    if(length(UV - mouse_pos) > brush_size - 0.5)
     {
       col = vec3(1) - col;
     }
@@ -263,6 +272,11 @@ let sheet_mouse_pos_uniform = gl.getUniformLocation(
 let sheet_page_resolution_uniform = gl.getUniformLocation(
   sheet_shader_program,
   "page_resolution"
+);
+
+let sheet_brush_size_uniform = gl.getUniformLocation(
+  sheet_shader_program,
+  "brush_size"
 );
 
 //vertex shader
@@ -537,22 +551,22 @@ let stroke_index = -1;
 const redSlider = document.getElementById("red-slider");
 const greenSlider = document.getElementById("green-slider");
 const blueSlider = document.getElementById("blue-slider");
-const colorPreview = document.getElementById("color-preview");
-const rgbLabel = document.getElementById("rgb-label");
+const rgbPreview = document.getElementById("rgb_preview");
 
 function updateColor() {
   const red = redSlider.value;
   const green = greenSlider.value;
   const blue = blueSlider.value;
   const rgbColor = `rgb(${red}, ${green}, ${blue})`;
-  colorPreview.style.backgroundColor = rgbColor; // Update preview color
   pixel_brush_color = [
     parseInt(red) / 255.0,
     parseInt(green) / 255.0,
     parseInt(blue) / 255.0,
   ]; // Update rgb brush color with slider color
-  rgbLabel.textContent = `red = ${red}, green = ${green}, blue = ${blue})`;
+  rgbPreview.style.fill = rgbColor;
 }
+
+updateColor();
 
 redSlider.addEventListener("input", updateColor);
 greenSlider.addEventListener("input", updateColor);
@@ -702,6 +716,7 @@ function Draw() {
   let tempyy = mat4.create();
   mat4.multiply(tempyy, world_to_clip, sheet_transform_matrix);
   gl.uniformMatrix4fv(sheet_matrix_uniform, false, tempyy);
+  gl.uniform1f(sheet_brush_size_uniform, brush_size);
   gl.drawArrays(gl.TRIANGLES, 0, square_vertex_array.length / 3);
 
   gl.useProgram(solid_color_shader_program);

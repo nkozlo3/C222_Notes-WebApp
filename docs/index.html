@@ -23,40 +23,36 @@
   </head>
   <!--Add a div to preserve aspect ratio across devices and screen sizes-->
   <body>
-    <!--start color slider div-->
-    <div id="color-container">
       <div id="color-preview">
-        <input
-          type="range"
-          class="hue-slider"
-          id="red-slider"
-          min="0"
-          max="255"
-          step="1"
-          value="0"
-        />
-        <input
-          type="range"
-          class="hue-slider"
-          id="green-slider"
-          min="0"
-          max="255"
-          step="1"
-          value="0"
-        />
-        <input
-          type="range"
-          class="hue-slider"
-          id="blue-slider"
-          min="0"
-          max="255"
-          step="1"
-          value="0"
-        />
-      </div>
-      <div id="rgb-label">red:0 green:0 blue:0</div>
+      <input
+        type="range"
+        class="hue-slider"
+        id="red-slider"
+        min="0"
+        max="255"
+        step="1"
+        value="0"
+      />
+      <input
+        type="range"
+        class="hue-slider"
+        id="green-slider"
+        min="0"
+        max="255"
+        step="1"
+        value="0"
+      />
+      <input
+        type="range"
+        class="hue-slider"
+        id="blue-slider"
+        min="0"
+        max="255"
+        step="1"
+        value="0"
+      />
     </div>
-    <!--end color slider div-->
+
     <div
       id="wrapper"
       style="
@@ -69,10 +65,12 @@
       <canvas id="glcanvas"></canvas>
       <div id="drawing_overlay">
       <button class="drawing_UI" id="brush_tool_button" type="button">brush tool</button>
-      <button class="drawing_UI" id="color_button" type="button">color</button>
       <button class="drawing_UI" id="clear_button" type="button">clear</button>
       <button class="drawing_UI" id="eraser_button" type="button">eraser</button>
-      <input type="range" min="1" max="100" value="50" class="drawing_UI" id="myRange">Hello</input>
+      <svg class="overlay">
+        <circle id="rgb_preview" cx="50" cy="50" r="20" stroke="rgb(80,80,80)" stroke-width="3" fill="magenta" />
+      </svg>
+      <input type="range" min="1" max="100" value="50" class="drawing_UI" id="myRange"></input>
       </div>
       <!-- div for main screen -->
       <div id="defaultDiv">
